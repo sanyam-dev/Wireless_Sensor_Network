@@ -1,0 +1,7 @@
+.ipynb_checkpoints/
+__pycache__/
+.editorconfig
+
+5_6125307741364815869.ipynb
+*.pdf
+.DS_Store
