@@ -2,7 +2,7 @@ from node import *
 from network import *
 
 #	initialising network:
-net = network(100, 100, 40, 0, 0)
+net = network(500, 500, 400, 0, 0)
 
 #	setting network parameters: distribution parameters, packet length,
 # 	transmission_rate and speed_of_transmission
@@ -31,7 +31,7 @@ not_cluster_heads = set(i for i in range(1, operational_nodes + 1))
 failed_iterations = 0
 
 #	main loop
-while operational_nodes > 0 and failed_iterations < 200:
+while len(dead_nodes) < 0.1*net.number_of_nodes:
 	#	each node transmit data once every round
 	rounds += 1
 	round_wise_cluster_head = []

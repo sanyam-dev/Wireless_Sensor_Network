@@ -18,11 +18,10 @@ class network:
 		self.area_length = area_length
 		self.area_width = area_width
 		self.number_of_nodes = nodes
-		self.base_station_x = base_x
-		self.base_station_y = base_y
 		self.node_list = []
-		self.node_map = {}
-		sink = node(0, 0, 0)
+
+		self.node_map = {int : node}
+		sink = node(0, base_x, base_y)
 		sink.node_energy_setup(5*1e9, -5*1e9)
 		self.sink = sink
 
@@ -75,7 +74,7 @@ class network:
 		plt.xlim(-1, self.area_length)
 		plt.ylim(-1, self.area_width)
 		plt.scatter(x,y, marker='x')
-		plt.scatter(self.base_station_x,self.base_station_y, c="red")
+		plt.scatter(0,0, c="red")
 		# for Node in self.node_list:
 		# 	plt.text(Node.x+.03, Node.y+.03, Node.id, fontsize = 6)
 

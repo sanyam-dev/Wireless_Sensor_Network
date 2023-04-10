@@ -1,43 +1,62 @@
 from node import *
 from network import *
 
-#	initialising networkz
-net = network(100, 100, 40, 0, 0)
-
-#	setting network parameters: distribution parameters, packet length,
-# 	transmission_rate and speed_of_transmission
-net.set_parameters(2000, 2000, 2000, 2000, 30)
-
-#	setting node initial_eneregy and node critical_energy to function
+net = network(500, 500, 400, 0, 0)
 net.initialise_nodes(1, 0.2)
-# net.show_network()
-#copying reocurring network parameters
+net.set_parameters(2000,2000,2000,2000, 20)
+
+dead_node = set()
+n = net.number_of_nodes
+k = net.packet_length
 sink = net.sink
-operational_nodes =	net.number_of_nodes
-dead_nodes = []
-rounds = 0
+packets = 0
+rnd = 0
+op_log = []
 
-operation_log = []
+while len(dead_node) < 0.2*net.number_of_nodes:
+	p = []
+	for x in net.node_list:
+		et = x.energy_for_transmission(k, x.dist(sink))
+		if not x.is_functional() or et > x.current_energy:
+			if x not in dead_node:
+				dead_node.add(x)
+				n-=1
+			continue
 
-#	main loop
-while operational_nodes > 0:
-	# each node trzansmit data once every round
+		x.current_energy -= et
+		packets+= 1
 
-	for Node in net.node_list:
-		if not Node.is_functional():
-			operational_nodes = operational_nodes - 1
-			dead_nodes.append(Node)
-			pass
+	print(n)
+	for x in net.node_list:
+		if x in dead_node:
+			continue
+		print(f"{x.id} : {x.current_energy} , {x.energy_for_transmission(k, x.dist(sink))}")
+		p.append([x.id, x.current_energy, x.energy_for_transmission(k, x.dist(sink))])
 
-		res = Node.transmit(net.packet_length, Node.dist(sink), sink)
-		# Node.current_energy -= Node.energy_for_transmission(net.packet_length, Node.dts)
-		# Node.current_energy -= Node.energy_for_reception(net.packet_length)
+	rnd += 1
+	op_log.append(p)
 
-		print(Node.id, " : ", Node.current_energy)
-	rounds += 1
+	# for i in range(1, net.number_of_nodes+ 1):
+	# 	if i in dead_node:
+	# 		continue
 
-	operation_log.append([rounds, operational_nodes, [Node.id for Node in dead_nodes]])
+	# 	Node = net.node_map[i]
+	# 	et = Node.energy_for_transmission(k, Node.dist(sink))
+	# 	print(et)
+	# 	if Node.is_functional() and Node.current_energy > et:
+	# 		Node.current_energy -= et
+	# 		packets += 1
+	# 	else:
+	# 		dead_node.add(i)
+	# 		n -= 1
 
-	print("round no.: ",rounds)
-	print("operational nodes: ", operational_nodes)
+	# 	p.append([i,Node.current_energy])
+	# print(rnd)
+	# if rnd % 5 == 0:
+	# 	for Node in net.node_list:
+	# 		if Node.is_functional():
+	# 			print(f"{Node.id} : {Node.current_energy}")
+
+print("rounds : ", rnd)
+print(packets)
 
