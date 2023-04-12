@@ -2,8 +2,8 @@ from network import *
 from node import *
 
 #	set network
-net = network(500, 500, 300, 0, 0)
-net.set_parameters(2000,2000,2000,2000,30)
+net = network(500, 500, 400, 0, 0)
+net.set_parameters(2000,200,2000,2000,30)
 net.initialise_nodes(1, 0.2)
 
 # net.show_network()
@@ -21,7 +21,7 @@ packet_length = net.packet_length
 dead_nodes = set()
 pkt_gen = 0
 pkt_rec = 0
-while operational_nodes > 0:
+while len(dead_nodes) < 0.1 * net.number_of_nodes:
 	rnd += 1
 	packet_to_sink = 0
 
@@ -42,10 +42,19 @@ while operational_nodes > 0:
 			if next_id in dead_nodes:
 				next_id = 0
 				break
-			res = currNode.transmit(packet_length, path[curr_id][1], nextNode)
+
+			if currNode.current_energy < currNode.energy_for_transmission(net.packet_length, path[curr_id][1]):
+				dead_nodes.add(curr_id)
+				operational_nodes -= 1
+			elif nextNode.current_energy < nextNode.energy_for_reception(net.packet_length):
+				dead_nodes.append(next_id)
+				operational_nodes -= 1
+			else:
+				currNode.current_energy -= currNode.energy_for_transmission(net.packet_length, path[curr_id][1])
+				nextNode.current_energy -= nextNode.energy_for_reception(net.packet_length)
+
 			curr_id = 	next_id
 			next_id =	path[curr_id][0]
-
 		#	if the next node is sink node:
 		currNode = net.node_map[curr_id]
 		res = currNode.transmit(packet_length, currNode.dist(sink), sink)
@@ -66,8 +75,11 @@ print(pkt_rec)
 print(pkt_gen)
 print(f"number of rounds: {rnd}")
 
+l = []
+for i in dead_nodes:
+	l.append(net.node_map[i].current_energy)
 
-
+print(l)
 ### Stable---
 
 # packets = [1 for i in range(net.number_of_nodes + 1)]
