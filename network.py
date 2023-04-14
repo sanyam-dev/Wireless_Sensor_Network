@@ -1,8 +1,9 @@
+from node import *
 import random
 import matplotlib.pyplot as plt
-from node import *
 import networkx as nx
 import heapq as pq
+
 class network:
 	"""
 	initialises the network
@@ -20,10 +21,12 @@ class network:
 		self.number_of_nodes = nodes
 		self.node_list = []
 
-		self.node_map = {int : node}
+		# self.node_map = {int: node.}
+		self.node_map = {}
 		sink = node(0, base_x, base_y)
 		sink.node_energy_setup(5*1e9, -5*1e9)
 		self.sink = sink
+		self.radio_distance = 0
 
 	def initialise_nodes(self, node_initial_energy, node_critical_energy):
 		"""
@@ -58,7 +61,7 @@ class network:
 		self.packet_length = len_of_packets	#bits
 		self.transmission_rate = transmission_rate	#kbps
 		self.transmission_speed = speed_of_transmission	#m/s
-		self.radio_distance = radio_distance
+		self.radio_distance = radio_distance	#m
 
 	def show_network(self):
 		"""
@@ -150,3 +153,73 @@ class network:
 					pq.heappush(li, n)
 		print(path)
 		return path
+
+	def findShortestPath(self, curr):
+		"""
+			Returns the smallest possible path from current node
+			to sink
+
+			parameters:
+				-	node
+		"""
+		adj = {int: list}
+		n = self.number_of_nodes
+		r = self.radio_distance
+
+		for i in range(n + 1):
+			x = self.node_map[i]
+			adj[i] = []
+			if not x.is_functional():
+				continue
+			for j in range(i+1, n+1):
+				y = self.node_map[j]
+				if not y.is_functional():
+					continue
+				d = x.dist(y)
+				adj[j] = []
+				if d < r and y.current_energy > y.energy_for_reception(self.packet_length):
+					adj[i].append([j, d])
+					adj[j].append([i, d])
+
+		u_n = {i for i in range(self.number_of_nodes + 1)} #unvisited nodes
+		dist = [int(1e9) for _ in range(self.number_of_nodes + 1)]
+		path = [-1 for _ in range(n+1)]
+		q = [0]
+		while len(q) != 0:
+			x = pq.heappop(q)
+			if x not in u_n:
+				continue
+			u_n.remove(x)
+			nn = adj[x]
+			for y,d in nn:
+				if d + dist[x] < dist[y]:
+					pq.heappush(q,y)
+					dist[y] = d + dist[x]
+					path[y] = x
+
+		# if path[curr.id] != -1:
+		li = []
+		c = path[curr.id]
+		while c != -1:
+			li.append(c)
+			c = path[c]
+
+		if len(li) != 0:
+			return li
+
+		st = [curr.id]
+		while not len(st) == 0:
+			i = st.pop()
+			nn = adj[i]
+			if i != curr.id:
+				li.append(i)
+			c = self.node_map[i]
+			dx = c.dist(self.sink)
+			for j,d in nn:
+				p = self.node_map[j].dist(self.sink)
+				if p < dx:
+					dx = p
+					st.append(j)
+					path[i] = j
+
+		return li
