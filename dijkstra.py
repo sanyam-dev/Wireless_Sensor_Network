@@ -1,7 +1,7 @@
 from network import *
 from node import *
 
-#	set network
+#    	set network
 net = network(500, 500, 400, 0, 0)
 net.set_parameters(2000,200,2000,2000,30)
 net.initialise_nodes(1, 0.2)
