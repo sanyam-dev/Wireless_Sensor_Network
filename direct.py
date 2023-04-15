@@ -13,7 +13,7 @@ packets = 0
 rnd = 0
 op_log = []
 
-while len(dead_node) < 0.1 * net.number_of_nodes:
+while len(dead_node) < 0.9 * net.number_of_nodes:
 	p = []
 	for x in net.node_list:
 		et = x.energy_for_transmission(k, x.dist(sink))

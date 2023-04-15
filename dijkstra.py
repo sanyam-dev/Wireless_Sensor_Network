@@ -21,7 +21,7 @@ packet_length = net.packet_length
 dead_nodes = set()
 pkt_gen = 0
 pkt_rec = 0
-while len(dead_nodes) < 0.1 * net.number_of_nodes:
+while len(dead_nodes) < 0.9 * net.number_of_nodes:
 	rnd += 1
 	packet_to_sink = 0
 
