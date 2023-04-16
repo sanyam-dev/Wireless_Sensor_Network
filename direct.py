@@ -2,7 +2,7 @@ from node import *
 from network import *
 
 net = network(500, 500, 400, 0, 0)
-net.initialise_nodes(1, 0.2)
+net.initialise_nodes_fixed(1, 0.4)
 net.set_parameters(2000,200,2000,2000, 30)
 
 dead_node = set()
@@ -12,8 +12,10 @@ sink = net.sink
 packets = 0
 rnd = 0
 op_log = []
+net.show_network()
 
-while len(dead_node) < 0.1 * net.number_of_nodes:
+
+while len(dead_node) < 0.9 * net.number_of_nodes:
 	p = []
 	for x in net.node_list:
 		et = x.energy_for_transmission(k, x.dist(sink))

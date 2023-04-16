@@ -1,9 +1,9 @@
 from node import *
 from network import *
 
-net = network(20, 20, 20, 0, 0)
-net.set_parameters(2000, 15, 2000, 2000, 6)
-net.initialise_nodes(0.4, 0.2)
+net = network(500, 500, 400, 0, 0)
+net.set_parameters(2000, 200, 2000, 2000, 30)
+net.initialise_nodes_fixed(1, 0.4)
 net.show_network()
 dead_node = set()
 k = net.packet_length
@@ -25,7 +25,7 @@ while len(dead_node) < 0.9*n:
 		p_gen += 1
 		path = net.findShortestPath(curr)
 
-		print(i, path)
+		# print(i, path)
 		while len(path) != 0:
 			next = net.node_map[path.pop()]
 			curr.current_energy -= curr.energy_for_transmission(k, next.dist(curr))
