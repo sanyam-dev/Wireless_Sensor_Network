@@ -1,5 +1,4 @@
-from node import *
-from network import *
+from network import network
 
 net = network(500, 500, 400, 0, 0)
 net.initialise_nodes(1, 0.2)

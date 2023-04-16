@@ -1,5 +1,5 @@
 from network import *
-from node import *
+
 
 #    	set network
 net = network(500, 500, 400, 0, 0)
