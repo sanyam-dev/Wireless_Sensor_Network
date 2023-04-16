@@ -13,10 +13,6 @@ rnd = 0
 op_log = []
 net.show_network()
 
-<<<<<<< HEAD
-
-=======
->>>>>>> ac795b7c465966a6f8cc0afd5e4bb7266ebd6e5d
 while len(dead_node) < 0.9 * net.number_of_nodes:
 	p = []
 	for x in net.node_list:
