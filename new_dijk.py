@@ -2,14 +2,17 @@ from node import *
 from network import *
 
 net = network(500, 500, 400, 0, 0)
-net.set_parameters(2000, 200, 2000, 2000, 30)
+net.set_parameters(2000, 200, 2000, 2000, 50)
 net.initialise_nodes_fixed(1, 0.4)
-net.show_network()
+# net.show_network()
+net.get_graph()
+print(net.get_acc())
 dead_node = set()
 k = net.packet_length
 rnds = 0
 n = net.number_of_nodes
 n_map = net.node_map
+
 s_trans = 0		#	successful transactions
 p_gen = 0	#	messages generated
 while len(dead_node) < 0.9*n:
