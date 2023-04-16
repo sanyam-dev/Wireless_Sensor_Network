@@ -1,19 +1,21 @@
 import numpy as np
-from PPO.RL import Agent
-from PPO.utils import plot_learning_curve
-from PPO.env import env
+from RL import Agent
+from utils import plot_learning_curve
+from env import env
 
 if __name__ == '__main__':
 	N = 20
 	batch_size = 5
 	n_epochs = 4
 	alpha = 0.0003
-	agent = Agent(n_actions=env.action_space.n, batch_size=batch_size,
+	env1 = env()
+	print("init: ", env1.net.get_apl(), env1.net.get_acc())
+	agent = Agent(n_actions=env1.action_space_n, batch_size=batch_size,
 					alpha=alpha, n_epochs=n_epochs,
-					input_dims=env.observation_space.shape)
+					input_dims=[env1.get_observation_space_shape()])
 	n_games = 300
 
-	figure_file = 'plots/cartpole.png'
+	# figure_file = 'plots/learning.png'
 
 	best_score = 0
 	score_history = []
@@ -23,14 +25,20 @@ if __name__ == '__main__':
 	n_steps = 0
 
 	for i in range(n_games):
-		observation = env.reset()
-		done = False
+		observation = env1.reset()
+		# done = False
+		done = 0
 		score = 0
-		while not done:
+		while not done == 10:
 			action, prob, val = agent.choose_action(observation)
-			observation_, reward, done, info = env.step(action)
+			# observation_, reward, done, info = env.step(action)
+			print("action: ", action)
+
+			observation_, reward = env1.step(action)	## commment later
 			n_steps += 1
 			score += reward
+			print("reward: ", reward, env1.net.acc, env1.net.apl)
+			done += 1	## comment later
 			agent.remember(observation, action, prob, val, reward, done)
 			if n_steps % N == 0:
 				agent.learn()
@@ -41,10 +49,10 @@ if __name__ == '__main__':
 
 		if avg_score > best_score:
 			best_score = avg_score
-			agent.save_models()
+			# agent.save_models()
 
 		print('episode', i, 'score %.1f' % score, 'avg score %.1f' % avg_score,
 				'time_steps', n_steps, 'learning_steps', learn_iters)
 	x = [i+1 for i in range(len(score_history))]
-	plot_learning_curve(x, score_history, figure_file)
+	plot_learning_curve(x, score_history)
 

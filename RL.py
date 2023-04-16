@@ -49,10 +49,10 @@ class PPOMemory:
 
 class ActorNetwork(nn.Module):
     def __init__(self, n_actions, input_dims, alpha,
-            fc1_dims=256, fc2_dims=256, chkpt_dir='tmp/ppo'):
+            fc1_dims=256, fc2_dims=256, chkpt_dir='./tmp/ppo'):
         super(ActorNetwork, self).__init__()
-
-        self.checkpoint_file = os.path.join(chkpt_dir, 'actor_torch_ppo')
+        # if os.path.join(chkpt_dir, 'actor_torch_ppo').exist:
+        self.checkpoint_file = os.path.join(chkpt_dir, 'actor_torch_ppo/')
         self.actor = nn.Sequential(
                 nn.Linear(*input_dims, fc1_dims),
                 nn.ReLU(),
@@ -138,6 +138,7 @@ class Agent:
         dist = self.actor(state)
         value = self.critic(state)
         action = dist.sample()
+
 
         probs = T.squeeze(dist.log_prob(action)).item()
         action = T.squeeze(action).item()
