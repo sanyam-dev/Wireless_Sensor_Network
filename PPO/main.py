@@ -2,6 +2,7 @@
 import numpy as np
 from PPO.RL import Agent
 from PPO.utils import plot_learning_curve
+from PPO.env import env
 
 if __name__ == '__main__':
 	# env = gym.make('CartPole-v0')
