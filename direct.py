@@ -1,43 +1,46 @@
-from node import *
-from network import *
+from network import network
 
-#	initialising networkz
-net = network(100, 100, 40, 0, 0)
+net = network(500, 500, 400, 0, 0)
+net.initialise_nodes_fixed(1, 0.4)
+net.set_parameters(2000,200,2000,2000, 30)
 
-#	setting network parameters: distribution parameters, packet length,
-# 	transmission_rate and speed_of_transmission
-net.set_parameters(2000, 2000, 2000, 2000, 30)
-
-#	setting node initial_eneregy and node critical_energy to function
-net.initialise_nodes(1, 0.2)
-# net.show_network()
-#copying reocurring network parameters
+dead_node = set()
+n = net.number_of_nodes
+k = net.packet_length
 sink = net.sink
-operational_nodes =	net.number_of_nodes
-dead_nodes = []
-rounds = 0
+packets = 0
+rnd = 0
+op_log = []
+net.show_network()
 
-operation_log = []
+<<<<<<< HEAD
 
-#	main loop
-while operational_nodes > 0:
-	# each node trzansmit data once every round
+=======
+>>>>>>> ac795b7c465966a6f8cc0afd5e4bb7266ebd6e5d
+while len(dead_node) < 0.9 * net.number_of_nodes:
+	p = []
+	for x in net.node_list:
+		et = x.energy_for_transmission(k, x.dist(sink))
+		if not x.is_functional() or et > x.current_energy:
+			if x not in dead_node:
+				dead_node.add(x)
+				n-=1
+			continue
 
-	for Node in net.node_list:
-		if not Node.is_functional():
-			operational_nodes = operational_nodes - 1
-			dead_nodes.append(Node)
-			pass
+		x.current_energy -= et
+		packets+= 1
 
-		res = Node.transmit(net.packet_length, Node.dist(sink), sink)
-		# Node.current_energy -= Node.energy_for_transmission(net.packet_length, Node.dts)
-		# Node.current_energy -= Node.energy_for_reception(net.packet_length)
+	print(n)
+	for x in net.node_list:
+		if x in dead_node:
+			continue
+		print(f"{x.id} : {x.current_energy} , {x.energy_for_transmission(k, x.dist(sink))}")
+		p.append([x.id, x.current_energy, x.energy_for_transmission(k, x.dist(sink))])
 
-		print(Node.id, " : ", Node.current_energy)
-	rounds += 1
+	rnd += 1
+	op_log.append(p)
 
-	operation_log.append([rounds, operational_nodes, [Node.id for Node in dead_nodes]])
 
-	print("round no.: ",rounds)
-	print("operational nodes: ", operational_nodes)
+print("rounds : ", rnd)
+print(packets)
 

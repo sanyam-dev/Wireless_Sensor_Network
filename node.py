@@ -49,7 +49,7 @@ class node:
 		return
 
 	def is_functional(self)	-> bool:
-		return self.current_energy > self.critical_energy
+		return self.current_energy > self.critical_energy or self.id == 0
 
 	def energy_for_transmission(self, k, d):
 		"""
@@ -94,7 +94,7 @@ class node:
 			-	distance
 			-	Node
 
-	
+
 		"""
 
 		if(self.current_energy  <= self.critical_energy or

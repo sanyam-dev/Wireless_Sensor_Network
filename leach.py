@@ -1,16 +1,15 @@
-from node import *
-from network import *
-
+from network import network
+import random
 #	initialising network:
-net = network(100, 100, 40, 0, 0)
+net = network(500, 500, 400, 0, 0)
 
 #	setting network parameters: distribution parameters, packet length,
 # 	transmission_rate and speed_of_transmission
-net.set_parameters(2000, 2000, 2000, 2000, 30)
+net.set_parameters(2000, 200, 2000, 2000, 30)
 
 #	setting node initial_eneregy and node critical_energy to function
-net.initialise_nodes(1, 0.2)
-# net.show_network()
+net.initialise_nodes_fixed(1, 0.4)
+net.show_network()
 
 #	copying reocurring network parameters
 sink = net.sink
@@ -31,7 +30,7 @@ not_cluster_heads = set(i for i in range(1, operational_nodes + 1))
 failed_iterations = 0
 
 #	main loop
-while operational_nodes > 0 and failed_iterations < 200:
+while len(dead_nodes) < 0.9*net.number_of_nodes:
 	#	each node transmit data once every round
 	rounds += 1
 	round_wise_cluster_head = []
