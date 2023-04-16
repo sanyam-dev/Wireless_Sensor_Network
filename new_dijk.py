@@ -57,7 +57,7 @@ while len(dead_node) < 0.9*n:
 	print("----")
 	print(rnds, len(dead_node))
 	print("----")
-print(s_trans, p_gen)
+print(s_trans, p_gen, s_trans/p_gen)
 
 total_latency+=rnd_latency
 
