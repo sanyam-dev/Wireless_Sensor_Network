@@ -3,6 +3,7 @@ from network import network
 net = network(500, 500, 400, 0, 0)
 net.initialise_nodes_fixed(1, 0.4)
 net.set_parameters(2000,200,2000,2000, 50)
+energy_consumed=0
 
 dead_node = set()
 n = net.number_of_nodes
@@ -28,6 +29,7 @@ while len(dead_node) < 0.9 * net.number_of_nodes:
 		rnd_latency+=(net.latency(x,sink))
 
 		x.current_energy -= et
+		energy_consumed+=et
 		packets+= 1
 
 	print(n)
@@ -46,4 +48,6 @@ print(packets)
 avg_latency= total_latency/rnd
 
 print("Average latency : ",avg_latency)
+print("Throughput : 1")
 
+print("Total Energy Consumed : ",energy_consumed)

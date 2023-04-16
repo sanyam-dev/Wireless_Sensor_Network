@@ -15,13 +15,14 @@ n = net.number_of_nodes
 n_map = net.node_map
 
 total_latency=0
-
+energy_consumed=0
 s_trans = 0		#	successful transactions
 p_gen = 0	#	messages generated
-
+rnd_latency=0
 while len(dead_node) < 0.9*n:
-	rnd_latency=0
+	
 	total_latency+=rnd_latency
+	rnd_latency=0
 	for i in range(1, n + 1):
 		if i in dead_node:
 			continue
@@ -36,18 +37,23 @@ while len(dead_node) < 0.9*n:
 
 		# print(i, path)
 		while len(path) != 0:
+			
 			next = net.node_map[path.pop()]
-			curr.current_energy -= curr.energy_for_transmission(k, next.dist(curr))
-			next.current_energy -= next.energy_for_reception(k)
 			rnd_latency+=(net.latency(curr,next))
+			trns=curr.energy_for_transmission(k, next.dist(curr))
+			curr.current_energy -= trns
+			recep=next.energy_for_reception(k)
+			next.current_energy -= recep
+			energy_consumed+=recep
 			curr = next
 
-		
+		snk=curr.energy_for_transmission(k, curr.dist(net.sink))
 		if curr.id == 0:
 			s_trans += 1
-		elif curr.current_energy > curr.energy_for_transmission(k, curr.dist(net.sink)):
-			curr.current_energy -= curr.energy_for_transmission(k, curr.dist(net.sink))
+		elif curr.current_energy > snk:
+			curr.current_energy -= snk
 			rnd_latency+=(net.latency(curr,sink))
+			energy_consumed+=snk
 			s_trans += 1
 		elif curr.id == i:
 			dead_node.add(i)
@@ -57,11 +63,13 @@ while len(dead_node) < 0.9*n:
 	print("----")
 	print(rnds, len(dead_node))
 	print("----")
-print(s_trans, p_gen, s_trans/p_gen)
 
 total_latency+=rnd_latency
 
 avg_latency= total_latency/rnds
+print(rnds)
 
 print("Average latency : ",avg_latency)
+print("Throughput : ",s_trans/p_gen)
 
+print("Total Energy Consumed : ",energy_consumed)

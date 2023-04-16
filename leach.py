@@ -3,6 +3,11 @@ import random
 #	initialising network:
 net = network(500, 500, 400, 0, 0)
 
+
+
+s_trans = 0		#	successful transactions
+p_gen = 0	#	messages generated
+energy_consumed=0
 #	setting network parameters: distribution parameters, packet length,
 # 	transmission_rate and speed_of_transmission
 net.set_parameters(2000, 200, 2000, 2000, 50)
@@ -91,20 +96,87 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 
 
 	#Data Transmission
+
+	
+	quant={int:int}
+	for i in range(net.number_of_nodes + 1):
+		quant[i] = 0
 	for Node in net.node_list:
 		if Node.role == 0:
-			
+				
 			headNode = net.node_map[Node.clusterID]
-			Node.current_energy -= Node.energy_for_transmission(net.packet_length, Node.dist_to_head)
-			headNode.current_energy -= headNode.energy_for_reception(net.packet_length)
-			rnd_latency+=(net.latency(Node,headNode))
+			trns=Node.energy_for_transmission(net.packet_length, Node.dist_to_head)
+			
+			recep=headNode.energy_for_reception(net.packet_length)
 
-		else:
-			Node.current_energy -= Node.energy_for_transmission(net.packet_length, Node.dist(sink))
-			rnd_latency+=(net.latency(Node,sink))
+			if(headNode.current_energy > recep):
+				if(Node.current_energy > trns):
+					p_gen+=1
+					Node.current_energy -= trns
+					energy_consumed+=trns
+					headNode.current_energy -= recep
+					energy_consumed+=recep
+					rnd_latency+=(net.latency(Node,headNode))
+					quant[Node.clusterID]+=1
 
-		print(Node.id, " : ", Node.current_energy)
 
+	for Node in net.node_list:
+		if Node.role == 1:
+
+			while quant[Node.id]:
+				snk=Node.energy_for_transmission(net.packet_length, Node.dist(sink))
+				if(snk>Node.current_energy):
+					break
+				s_trans += 1
+				quant[Node.id] -= 1
+				Node.current_energy -= snk
+				energy_consumed+=snk
+				rnd_latency+=(net.latency(Node,sink))
+			snk=Node.energy_for_transmission(net.packet_length, Node.dist(sink))
+			if(snk<=Node.current_energy):
+				p_gen +=1
+				s_trans+=1
+				Node.current_energy -= snk
+				energy_consumed+=snk
+				rnd_latency+=(net.latency(Node,sink))
+
+#for better throughput
+	# for Node in net.node_list: #send data from all heads
+	# 	if Node.role == 1:
+	# 		snk=Node.energy_for_transmission(net.packet_length, Node.dist(sink))
+	# 		if(snk<=Node.current_energy):
+	# 			p_gen +=1
+	# 			s_trans+=1
+	# 			Node.current_energy -= snk
+	# 			energy_consumed+=snk
+	# 			rnd_latency+=(net.latency(Node,sink))
+
+	# for Node in net.node_list:
+	# 	if Node.role == 0:
+	# 		headNode = net.node_map[Node.clusterID]
+	# 		trns=Node.energy_for_transmission(net.packet_length, Node.dist_to_head)
+	# 		recep=headNode.energy_for_reception(net.packet_length)
+
+	# 		if(headNode.current_energy > recep):
+	# 			if(Node.current_energy > trns):
+	# 				p_gen+=1
+	# 				Node.current_energy -= trns
+	# 				energy_consumed+=trns
+	# 				headNode.current_energy -= recep
+	# 				energy_consumed+=recep #recieved at head
+	# 				snk=headNode.energy_for_transmission(net.packet_length, headNode.dist(sink))
+	# 				if(snk<=headNode.current_energy):
+	# 					s_trans+=1
+	# 					headNode.current_energy -= snk
+	# 					energy_consumed+=snk
+	# 					rnd_latency+=(net.latency(headNode,sink))
+
+
+
+
+
+	print(Node.id, " : ", Node.current_energy)
+	print(s_trans ,p_gen,s_trans/p_gen)
 	operation_log.append([rounds, operational_nodes, net.node_list, [Node.id for Node in dead_nodes]])
 
 total_latency+=rnd_latency
@@ -120,4 +192,7 @@ print("round no. : ", rounds)
 avg_latency= total_latency/rounds
 
 print("Average latency : ",avg_latency)
+
+print("Throughput : ",s_trans/p_gen)
+print("Total Energy Consumed : ",energy_consumed)
 

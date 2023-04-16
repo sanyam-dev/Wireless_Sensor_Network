@@ -364,5 +364,5 @@ class network:
 		l=0
 		l+=(self.packet_length/self.transmission_rate)
 		l+=(curr.dist(next)/self.transmission_speed)
-		l+=(1/(curr.queue_param-curr.processing_param))
+		l+=0.3
 		return l
