@@ -9,7 +9,7 @@ class node:
 	-	y coordinate of node
 	-	node id
 	"""
-	def	__init__(self, x, y, id) -> None:
+	def	__init__(self, x, y, id,processing_param, queue_param) -> None:
 		self.x = x
 		self.y = y
 		self.id = id
@@ -20,6 +20,8 @@ class node:
 		self.free_space_energy_parameter = 25*10**(-12)	#pJ/bit/m^2
 		self.multihop_energy_paramter = 0.065*10**(-12)	#pJ/bit/m^2
 		self.d0 = math.sqrt(self.free_space_energy_parameter/self.multihop_energy_paramter)
+		self.processing_param=processing_param
+		self.queue_param=queue_param
 
 
 	def	dist(self, Node)	-> float:

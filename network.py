@@ -22,7 +22,7 @@ class network:
 
 		# self.node_map = {int: node.}
 		self.node_map = {}
-		sink = node(0, base_x, base_y)
+		sink = node(0, base_x, base_y,0,0)
 		sink.node_energy_setup(5*1e9, -5*1e9)
 		self.sink = sink
 		self.radio_distance = 0
@@ -37,7 +37,7 @@ class network:
 		"""
 		self.node_map[0] = self.sink
 		for i in range(1, self.number_of_nodes + 1):
-			Node = node(random.randint(0,self.area_length), random.randint(0,self.area_width), i)
+			Node = node(random.randint(0,self.area_length), random.randint(0,self.area_width), i,0,0)
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
 			self.node_map[i] = Node
@@ -50,7 +50,7 @@ class network:
 		
 		self.node_map[0] = self.sink
 		for i in range(1, self.number_of_nodes + 1):
-			Node = node(x[i-1], y[i-1], i)
+			Node = node(x[i-1], y[i-1], i,0,0)
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
 			self.node_map[i] = Node
@@ -261,3 +261,12 @@ class network:
 					path[i] = j
 
 		return li
+
+
+	def latency(self,curr:node,next:node)->int:
+		l=0
+		l+=(self.packet_length/self.transmission_rate)
+		l+=(curr.dist(next)/self.transmission_speed)
+		# l+=(1/(curr.queue_param-curr.processing_param))
+		return l
+	

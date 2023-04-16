@@ -5,7 +5,7 @@ net = network(500, 500, 400, 0, 0)
 
 #	setting network parameters: distribution parameters, packet length,
 # 	transmission_rate and speed_of_transmission
-net.set_parameters(2000, 200, 2000, 2000, 30)
+net.set_parameters(2000, 200, 2000, 2000, 50)
 
 #	setting node initial_eneregy and node critical_energy to function
 net.initialise_nodes_fixed(1, 0.4)
