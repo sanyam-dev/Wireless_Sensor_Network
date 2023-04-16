@@ -1,6 +1,5 @@
 from network import network as nw
 from torch import argmax
-
 class env:
 	def __init__(self) -> None:
 		self.net = nw(500, 500, 300, 0, 0)
