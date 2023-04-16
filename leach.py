@@ -16,7 +16,7 @@ sink = net.sink
 operational_nodes =	net.number_of_nodes
 dead_nodes = []
 rounds = 0
-
+total_latency=0
 operation_log = []
 
 #	setting distance from server in every node:
@@ -30,11 +30,13 @@ not_cluster_heads = set(i for i in range(1, operational_nodes + 1))
 failed_iterations = 0
 
 #	main loop
+rnd_latency=0
 while len(dead_nodes) < 0.9*net.number_of_nodes:
 	#	each node transmit data once every round
+	total_latency+=rnd_latency
 	rounds += 1
 	round_wise_cluster_head = []
-
+	rnd_latency=0
 	#	Advertising Phase
 	for Node in net.node_list:
 
@@ -91,17 +93,21 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 	#Data Transmission
 	for Node in net.node_list:
 		if Node.role == 0:
+			
 			headNode = net.node_map[Node.clusterID]
 			Node.current_energy -= Node.energy_for_transmission(net.packet_length, Node.dist_to_head)
 			headNode.current_energy -= headNode.energy_for_reception(net.packet_length)
+			rnd_latency+=(net.latency(Node,headNode))
 
 		else:
 			Node.current_energy -= Node.energy_for_transmission(net.packet_length, Node.dist(sink))
+			rnd_latency+=(net.latency(Node,sink))
 
 		print(Node.id, " : ", Node.current_energy)
 
 	operation_log.append([rounds, operational_nodes, net.node_list, [Node.id for Node in dead_nodes]])
 
+total_latency+=rnd_latency
 # for log in operation_log:
 # 	print("round no. : ", log[0])
 # 	print("operational nodes: ", log[1])
@@ -109,3 +115,9 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 if(failed_iterations >= 200):
 	print("failed!")
 print("round no. : ", rounds)
+
+
+avg_latency= total_latency/rounds
+
+print("Average latency : ",avg_latency)
+
