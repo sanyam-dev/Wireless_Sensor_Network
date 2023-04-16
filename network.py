@@ -154,7 +154,7 @@ class network:
 					graph[i][j] = 1
 					graph[j][i] = 1
 		self.graph = graph
-		
+		return graph
 
 	# def dijkstra(self)->list:
 	# 	"""
