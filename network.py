@@ -46,6 +46,7 @@ class network:
 			self.node_list.append(Node)
 			self.node_map[i] = Node
 
+		self.get_graph()
 
 	def initialise_nodes_fixed(self, node_initial_energy, node_critical_energy):
 		"""
@@ -66,7 +67,7 @@ class network:
 			self.node_list.append(Node)
 			self.node_map[i] = Node
 
-
+		self.get_graph()
 		# self.node_map[0] = self.sink
 		# p=10
 		# nod=1
@@ -140,40 +141,10 @@ class network:
 	# 	nx.draw(G, positions, with_labels = True, **options)
 	# 	plt.show()
 
-	def set_nnd(self)-> list:
-		nnd = []
-		for i in range(1, self.number_of_nodes + 1):
-			currNode = self.node_map[i]
-			if currNode.dist(self.sink) <= self.radio_distance:
-				nnd.append([self.sink, currNode, currNode.dist(self.sink)])
-
-			for j in range(i + 1, self.number_of_nodes + 1):
-				tmpNode = self.node_map[j]
-				x = tmpNode.dist(currNode)
-				nnd.append([currNode, tmpNode, x])
-		# self.nnd = nnd
-		return nnd
-
-	def network_adj_matrix(self) -> dict:
-		"""
-		returns an adjacency matrix of the network
-
-		``` 0 is the sink node```
-		"""
-
-		adj = {}
-		nnd = self.set_nnd()
-		for i in range(self.number_of_nodes + 1):
-			adj[i] = []
-		for n1, n2, x in nnd:
-			if x <= self.radio_distance:
-				adj[n1.id].append([n2.id, x])
-				adj[n2.id].append([n1.id, x])
-		# self.adj = adj
-		return adj
 
 
 	def get_graph(self):
+		
 		n = self.number_of_nodes
 		for i in range(n+1):
 			x = self.node_map[i]
@@ -184,58 +155,139 @@ class network:
 					self.graph[j][i] = 1
 
 
-	def dijkstra(self)->list:
-		"""
-			Returns a dictionary where every node
-			is mapped to the list containing shortest path
-			found via Dijkstra's algorithm
-		"""
-		path = [[0, self.node_map[i].dist(self.sink)] for i in range(self.number_of_nodes + 1)]
-		unvisited_nodes = {i for i in range(self.number_of_nodes + 1)}
-		G = self.network_adj_matrix()
-		dist = [int(1e9) for _ in range(self.number_of_nodes + 1)]
-		#	sink is the source node
-		dist[0] = 0
-		li = [0]
-		while len(li) != 0:
-			currNode = pq.heappop(li)
-			if currNode not in unvisited_nodes: continue
-			unvisited_nodes.remove(currNode)
+	# def dijkstra(self)->list:
+	# 	"""
+	# 		Returns a dictionary where every node
+	# 		is mapped to the list containing shortest path
+	# 		found via Dijkstra's algorithm
+	# 	"""
+	# 	path = [[0, self.node_map[i].dist(self.sink)] for i in range(self.number_of_nodes + 1)]
+	# 	unvisited_nodes = {i for i in range(self.number_of_nodes + 1)}
+	# 	G = self.network_adj_matrix()
+	# 	dist = [int(1e9) for _ in range(self.number_of_nodes + 1)]
+	# 	#	sink is the source node
+	# 	dist[0] = 0
+	# 	li = [0]
+	# 	while len(li) != 0:
+	# 		currNode = pq.heappop(li)
+	# 		if currNode not in unvisited_nodes: continue
+	# 		unvisited_nodes.remove(currNode)
 
-			for n,x in G[currNode]:
-				if dist[n] > dist[currNode] + x and n in unvisited_nodes:
-					dist[n] = dist[currNode] + x
-					path[n] = [currNode, x]
-					pq.heappush(li, n)
-		print(path)
-		return path
+	# 		for n,x in G[currNode]:
+	# 			if dist[n] > dist[currNode] + x and n in unvisited_nodes:
+	# 				dist[n] = dist[currNode] + x
+	# 				path[n] = [currNode, x]
+	# 				pq.heappush(li, n)
+	# 	print(path)
+	# 	return path
+
+	# def get_acc(self):
+	# 	"""
+	# 		Returns Average Clustering Coefficient of the graph
+	# 	"""
+	# 	n = self.number_of_nodes
+	# 	self.acc = 0
+	# 	for i in range(n + 1):
+	# 		neighbours = []
+	# 		for j in range(n + 1):
+	# 			if self.graph[i][j] != 0:
+	# 				neighbours.append(j)
+
+	# 		neighbour_links = 0
+	# 		for k in range(len(neighbours)):
+	# 			for l in range(len(neighbours) - 1):
+	# 				if  k != l+1 and self.graph[neighbours[k]][neighbours[l+1]] != 0:
+	# 					neighbour_links += 1
+	# 		acc = (2 * neighbour_links) / (len(neighbours) * (len(neighbours) - 1))
+	# 		self.acc += acc
+	# 	self.acc = self.acc / n
+	# 	return self.acc
 
 	def get_acc(self):
 		"""
-			Returns Average Clustering Coefficient of the graph
-		"""
-		n = self.number_of_nodes
-		for i in range(n + 1):
-			neighbours = []
-			for j in range(n + 1):
-				if self.graph[i][j] != 0:
-					neighbours.append(j)
+		Calculates the average clustering coefficient of a graph given its adjacency matrix.
 
-			neighbour_links = 0
-			for k in range(len(neighbours)):
-				for l in range(len(neighbours) - 1):
-					if  k != l+1 and self.graph[neighbours[k]][neighbours[l+1]] != 0:
-						neighbour_links += 1
-			acc = (2 * neighbour_links) / (len(neighbours) * (len(neighbours) - 1))
-			self.acc += acc
-		self.acc = self.acc / self.num_nodes
+		Parameters:
+			-- adj_matrix (list of lists): Adjacency matrix of the graph represented as a list of lists, where
+											adj_matrix[i][j] is 1 if there is an edge between node i and node j,
+											and 0 otherwise.
+
+		Returns:
+			-- float: The average clustering coefficient of the graph.
+		"""
+		adj_matrix = self.get_graph()
+		print(adj_matrix)
+		num_nodes = len(adj_matrix)
+		total_clustering_coefficient = 0
+
+		for i in range(num_nodes):
+			# Get the neighbors of node i
+			neighbors = []
+			for j in range(num_nodes):
+				if adj_matrix[i][j] == 1:
+					neighbors.append(j)
+
+			num_neighbors = len(neighbors)
+
+			if num_neighbors > 1:
+				# Calculate the number of edges between the neighbors of node i
+				num_edges_between_neighbors = 0
+				for j in range(num_neighbors):
+					for k in range(j+1, num_neighbors):
+						if adj_matrix[neighbors[j]][neighbors[k]] == 1:
+							num_edges_between_neighbors += 1
+
+				# Calculate the clustering coefficient of node i
+				clustering_coefficient = 2 * num_edges_between_neighbors / (num_neighbors * (num_neighbors - 1))
+				total_clustering_coefficient += clustering_coefficient
+
+		# Calculate the average clustering coefficient of the graph
+		average_coefficient = total_clustering_coefficient / num_nodes
+		self.acc = average_coefficient
+		return average_coefficient
 
 	def get_apl(self):
-		n = self.number_of_nodes
-		for i in range(n+1):
-			distances = self.dijkstra.dijkstra(self.graph, i)
-			self.apl += np.sum(distances)
-		self.apl = self.apl / (self.num_nodes * (self.num_nodes - 1))
+		"""
+		Calculates the average path length of a graph from its adjacency matrix.
+
+		Parameters:
+			-- adj_matrix (list of lists): Adjacency matrix of the graph represented as a list of lists, where
+											adj_matrix[i][j] is the weight of the edge from node i to node j. If
+											there is no edge between i and j, adj_matrix[i][j] should be None
+											or a large value representing infinity.
+
+		Returns:
+			-- float: The average path length of the graph.
+		"""
+		num_nodes = self.number_of_nodes
+		adj_matrix = self.graph
+		total_path_length = 0
+		reachable_nodes = 0
+		# Initialize the distance matrix with the adjacency matrix
+		dist_matrix = adj_matrix
+
+		# Set the diagonal elements of the distance matrix to 0
+		for i in range(num_nodes):
+			dist_matrix[i][i] = 0
+
+		# Perform Floyd-Warshall algorithm to find shortest paths between all pairs of nodes
+		for k in range(num_nodes):
+			for i in range(num_nodes):
+				for j in range(num_nodes):
+					if dist_matrix[i][k] != 0 and dist_matrix[k][j]  != 0:
+						if dist_matrix[i][j] == 0 or dist_matrix[i][j] > dist_matrix[i][k] + dist_matrix[k][j]:
+							dist_matrix[i][j] = dist_matrix[i][k] + dist_matrix[k][j]
+
+		# Sum the distances in the distance matrix to calculate total path length
+		for i in range(num_nodes):
+			if dist_matrix[i][0] !=  0:
+				reachable_nodes += 1
+				total_path_length += dist_matrix[i][j]
+
+		# Calculate the average path length of the graph
+		average_length = total_path_length / reachable_nodes
+		self.apl = average_length
+		return average_length
 
 	def findShortestPath(self, curr:node):
 		"""
@@ -314,4 +366,3 @@ class network:
 		l+=(curr.dist(next)/self.transmission_speed)
 		# l+=(1/(curr.queue_param-curr.processing_param))
 		return l
-	

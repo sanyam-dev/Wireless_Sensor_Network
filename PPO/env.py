@@ -31,15 +31,7 @@ class env:
 		return res
 
 	def find_observation_space(self)->list:
-		n = self.net.number_of_nodes
-		li = self.net.node_list
-		adj_mat = [[0 for _ in range(n+1)] for _ in range(n+1)]
-		for i in range(n+1):
-			for j in range(i+1, n+1):
-				if li[i].dist(li[j])  < self.net.radio_distance:
-					adj_mat[i][j] = 1
-					adj_mat[j][i] = 1
-		return adj_mat
+		return self.net.get_graph()
 
 	def reset(self):
 		self.net = self.reset_net
@@ -57,12 +49,13 @@ class env:
 
 	def get_done(self):
 		#	node energy = 0
-
+		
 		pass
 
 	def step(self, action):
 		action = argmax(action)
 		action = self.action_space(action)
+		print(action)
 		mat = self.observation_space
 		mat[action[0]][action[1]] = 1
 		mat[action[1]][action[0]] = 1

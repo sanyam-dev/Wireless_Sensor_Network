@@ -1,11 +1,9 @@
-# import gym
 import numpy as np
 from PPO.RL import Agent
 from PPO.utils import plot_learning_curve
 from PPO.env import env
 
 if __name__ == '__main__':
-	# env = gym.make('CartPole-v0')
 	N = 20
 	batch_size = 5
 	n_epochs = 4
@@ -17,7 +15,7 @@ if __name__ == '__main__':
 
 	figure_file = 'plots/cartpole.png'
 
-	best_score = env.reward_range[0]
+	best_score = 0
 	score_history = []
 
 	learn_iters = 0
