@@ -144,16 +144,17 @@ class network:
 
 
 	def get_graph(self):
-		
+		graph = [[0 for _ in range(self.number_of_nodes + 1)] for _ in range(self.number_of_nodes + 1)]
 		n = self.number_of_nodes
 		for i in range(n+1):
 			x = self.node_map[i]
 			for j in range(i+1, n+1):
 				y = self.node_map[j]
 				if	sqrt((x.x - y.x)**2 + (y.y-x.y)**2) <= self.radio_distance:
-					self.graph[i][j] = 1
-					self.graph[j][i] = 1
-
+					graph[i][j] = 1
+					graph[j][i] = 1
+		self.graph = graph
+		return graph
 
 	# def dijkstra(self)->list:
 	# 	"""
