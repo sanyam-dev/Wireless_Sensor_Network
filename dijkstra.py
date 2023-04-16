@@ -62,6 +62,9 @@
 
 # print(f"number of rounds: {rnd}")
 
+l = []
+for i in dead_nodes:
+	l.append(net.node_map[i].current_energy)
 
 
 # ### Stable---
