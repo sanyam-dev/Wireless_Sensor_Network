@@ -1,7 +1,6 @@
-from node import *
+from node import node
 import random
-import matplotlib.pyplot as plt
-import networkx as nx
+import matplotlib as plt
 import heapq as pq
 
 class network:
@@ -122,17 +121,17 @@ class network:
 
 		plt.show()
 
-	def show_graph(self):
-		G = nx.Graph()
-		positions = {}
-		for Node in self.node_list:
-			# G.add_node(str(Node.id), pos = (Node.x, Node.y))
-			positions[Node.id] = [Node.x, Node.y]
-		ax = plt.figure().gca()
-		ax.set_axis_off()
-		options = {"node_size": 300, "node_color": "red"}
-		nx.draw(G, positions, with_labels = True, **options)
-		plt.show()
+	# def show_graph(self):
+	# 	G = nx.Graph()
+	# 	positions = {}
+	# 	for Node in self.node_list:
+	# 		# G.add_node(str(Node.id), pos = (Node.x, Node.y))
+	# 		positions[Node.id] = [Node.x, Node.y]
+	# 	ax = plt.figure().gca()
+	# 	ax.set_axis_off()
+	# 	options = {"node_size": 300, "node_color": "red"}
+	# 	nx.draw(G, positions, with_labels = True, **options)
+	# 	plt.show()
 
 	def set_nnd(self)-> list:
 		nnd = []

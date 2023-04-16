@@ -1,6 +1,5 @@
-from node import *
-from network import *
-
+from network import network
+import random
 #	initialising network:
 net = network(500, 500, 400, 0, 0)
 
