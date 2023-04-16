@@ -1,4 +1,4 @@
-from node import *
+from node import node
 import random
 import matplotlib as plt
 import heapq as pq
