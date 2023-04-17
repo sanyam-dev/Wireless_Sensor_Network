@@ -85,8 +85,8 @@ class network:
 		self.transmission_speed = speed_of_transmission	#m/s
 		self.radio_distance = radio_distance	#m
 		self.get_graph()
-		self.apl = self.get_apl()
-		self.acc = self.get_acc()
+		self.apl = self.get_apl(self.graph)
+		self.acc = self.get_acc(self.graph)
 
 	def show_network(self):
 		"""
@@ -120,10 +120,9 @@ class network:
 					graph[i][j] = 1
 					graph[j][i] = 1
 		self.graph = graph
-
 		return graph
 
-	def get_acc(self):
+	def get_acc(self, adj_matrix):
 		"""
 		Calculates the average clustering coefficient of a graph given its adjacency matrix.
 
@@ -135,7 +134,7 @@ class network:
 		Returns:
 			-- float: The average clustering coefficient of the graph.
 		"""
-		adj_matrix = self.get_graph()
+		# adj_matrix = self.get_graph()
 		num_nodes = len(adj_matrix)
 		total_clustering_coefficient = 0
 
@@ -164,9 +163,10 @@ class network:
 		average_coefficient = total_clustering_coefficient / num_nodes
 		average_coefficient = round(average_coefficient, 3)
 		self.acc = average_coefficient
+		self.graph = adj_matrix
 		return average_coefficient
 
-	def get_apl(self):
+	def get_apl(self, adj_matrix):
 		"""
 		Calculates the average path length of a graph from its adjacency matrix.
 
@@ -179,7 +179,7 @@ class network:
 		Returns:
 			-- float: The average path length of the graph.
 		"""
-		adj_matrix = self.graph
+		# adj_matrix = self.graph
 		num_nodes = len(adj_matrix)
 		total_path_length = 0
 
@@ -209,6 +209,7 @@ class network:
 		average_length = total_path_length / (num_nodes * (num_nodes - 1))
 		average_length = round(average_length, 3)
 		self.apl = average_length
+		self.graph = adj_matrix
 		return average_length
 
 	def findShortestPath(self, curr:node):
