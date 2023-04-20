@@ -1,4 +1,6 @@
 from network import network as nw
+import networkx as nx
+import matplotlib.pyplot as plt
 
 class env:
 	def __init__(self) -> None:
@@ -9,6 +11,7 @@ class env:
 		self.initial_graph = self.net.get_graph()
 		self.action_space = self.set_action_space()
 		self.action_space_n = len(self.action_space)
+		self.edges_added = []
 		self.obs_space = self.net.get_graph()
 
 	def set_action_space(self)->list:
@@ -35,6 +38,7 @@ class env:
 		self.net = self.initial_net
 		self.obs_space = self.initial_graph
 		mat = self.obs_space
+		self.edges_added = []
 		mat_flatten = [num for sublist in mat for num in sublist]
 		return mat_flatten
 
@@ -53,6 +57,7 @@ class env:
 		#	node energy = 0
 		pass
 
+
 	def step(self, action):
 		li = self.action_space[action]
 		n1 = li[0].id
@@ -66,7 +71,7 @@ class env:
 			# print("after:", self.net.acc, self.net.apl)
 			return mat_flatten, reward
 		print("before:", self.net.acc, self.net.apl)
-
+		self.edges_added.append([n1, n2])
 		mat[n1][n2] = 1
 		mat[n2][n1] = 1
 		self.obs_space = mat
@@ -87,5 +92,28 @@ class env:
 		# # print(mat_flatten)
 		# return mat_flatten, reward
 
+	def show_graph(self):
+		G = nx.Graph()
+		graph = self.net.get_graph()
+		mp = self.net.node_map
+		for i in range(1,len(graph)):
+			G.add_node(i, pos = (mp[i].x, mp[i].y))
+		G.add_node(0, pos = (0, 0))
 
+		for i in range(len(graph)):
+			for j in range(len(graph)):
+				if graph[i][j] == 1:
+					G.add_edge(i, j, color = 'black')
+		for edge in self.edges_added:
+			G.add_edge(edge[0], edge[1], color = 'red')
+		print("apl: ", round(nx.average_shortest_path_length(G), 3), "acc: ", round(nx.average_clustering(G), 3))
+
+		pos = nx.get_node_attributes(G, 'pos')
+		e = G.edges()
+		n_color = ['red' if node == 0 else 'blue' for node in G]
+		e_color =  [G[u][v]['color'] for u,v in e]
+		nx.draw(G, pos, node_color = n_color,
+	  				edge_color = e_color, with_labels = True)
+
+		plt.show()
 

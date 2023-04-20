@@ -14,7 +14,7 @@ if __name__ == '__main__':
 	agent = Agent(n_actions=env1.action_space_n, batch_size=batch_size,
 					alpha=alpha, n_epochs=n_epochs,
 					input_dims=[env1.get_observation_space_shape()])
-	n_games = 1
+	n_games = 3
 
 	# figure_file = 'plots/learning.png'
 
@@ -37,7 +37,7 @@ if __name__ == '__main__':
 			observation_, reward = env1.step(action)	## commment later
 			n_steps += 1
 			score += reward
-
+			env1.show_graph()
 			done += 1	## comment later
 			agent.remember(observation_flatten, action, prob, val, reward, done)
 			if n_steps % N == 0:
