@@ -3,33 +3,31 @@ import random
 from math import sqrt
 import matplotlib.pyplot as plt
 import heapq as pq
-import networkx as nx
 
 class network:
+	"""
+	initialises the network
 
+	parameters:
+	-	Length
+	-	Width
+	-	number of nodes
+	-	x coordinate of BS
+	-	y coordinate of BS
+	"""
 	def __init__(self, area_length, area_width, nodes, base_x, base_y) -> None:
-		"""
-			initialises the network
-
-			parameters:
-			-	Length
-			-	Width
-			-	number of nodes
-			-	x coordinate of BS
-			-	y coordinate of BS
-		"""
 		self.area_length = area_length
 		self.area_width = area_width
 		self.number_of_nodes = nodes
 		self.node_list = []
+
+		# self.node_map = {int: node.}
 		self.node_map = {}
-		sink = node(base_x,base_y,0,0,0)
-		self.node_list.append(sink)
+		sink = node(0, base_x, base_y,0,0)
 		sink.node_energy_setup(5*1e9, -5*1e9)
 		self.sink = sink
 		self.radio_distance = 0
 		self.graph = [[0 for _ in range(self.number_of_nodes + 1)] for _ in range(self.number_of_nodes + 1)]
-		self.nx_graph = None
 
 	def initialise_nodes(self, node_initial_energy, node_critical_energy):
 		"""
@@ -59,24 +57,13 @@ class network:
 		x=[2, 15, 4, 46, 35, 41, 45, 46, 25, 16, 21, 18, 44, 46, 48, 0, 25, 38, 26, 19, 49, 43, 29, 3, 30, 41, 44, 35, 0, 47, 4, 46, 26, 4, 32, 29, 41, 13, 31, 38, 65, 66, 73, 62, 85, 76, 94, 73, 88, 79, 83, 78, 51, 79, 67, 62, 86, 55, 77, 82, 64, 80, 85, 61, 50, 56, 93, 65, 83, 91, 68, 57, 58, 77, 60, 78, 81, 56, 92, 97, 120, 130, 131, 108, 118, 105, 124, 123, 101, 115, 100, 115, 117, 139, 110, 116, 140, 107, 107, 103, 146, 134, 129, 122, 104, 134, 103, 104, 113, 121, 121, 150, 133, 133, 144, 147, 105, 106, 116, 149, 168, 195, 163, 178, 154, 183, 150, 173, 198, 172, 174, 165, 158, 152, 158, 196, 154, 154, 151, 197, 197, 191, 155, 184, 189, 185, 199, 159, 177, 186, 186, 176, 191, 154, 157, 176, 162, 178, 162, 194, 232, 241, 237, 203, 227, 238, 205, 219, 210, 210, 246, 221, 211, 209, 224, 208, 247, 234, 249, 228, 200, 240, 219, 245, 237, 228, 233, 203, 210, 234, 205, 237, 236, 230, 236, 205, 233, 221, 223, 242, 258, 251, 282, 275, 277, 283, 287, 270, 261, 289, 283, 270, 291, 289, 279, 254, 281, 276, 270, 261, 282, 259, 277, 264, 258, 250, 277, 271, 263, 267, 271, 254, 296, 251, 270, 292, 281, 254, 250, 258, 327, 346, 308, 333, 342, 344, 342, 329, 318, 346, 306, 303, 325, 318, 315, 334, 347, 334, 320, 335, 307, 342, 321, 339, 349, 300, 337, 333, 326, 341, 337, 304, 318, 307, 331, 322, 342, 346, 325, 347, 373, 367, 356, 369, 366, 392, 371, 400, 394, 394, 366, 375, 355, 393, 365, 388, 381, 356, 374, 353, 399, 384, 382, 379, 382, 397, 393, 359, 386, 355, 362, 376, 373, 394, 384, 379, 399, 361, 356, 369, 446, 445, 448, 446, 431, 447, 405, 423, 403, 449, 427, 439, 423, 418, 441, 447, 448, 400, 402, 420, 408, 416, 414, 425, 445, 424, 442, 406, 412, 442, 406, 416, 419, 400, 406, 422, 425, 421, 415, 433, 481, 492, 489, 450, 481, 494, 461, 454, 482, 457, 471, 453, 488, 471, 495, 469, 499, 461, 450, 454, 481, 462, 471, 450, 491, 467, 489, 484, 484, 491, 466, 467, 487, 466, 469, 455, 451, 483, 471, 494]
 		y=[48, 46, 36, 28, 78, 50, 90, 84, 130, 145, 103, 122, 195, 160, 179, 154, 246, 248, 243, 223, 269, 300, 271, 282, 326, 318, 347, 335, 365, 382, 375, 383, 413, 406, 407, 406, 454, 457, 466, 454, 3, 47, 1, 42, 67, 61, 75, 73, 121, 120, 140, 120, 176, 182, 174, 150, 240, 220, 225, 203, 264, 255, 282, 250, 336, 331, 320, 318, 351, 367, 376, 358, 416, 442, 410, 429, 466, 497, 487, 496, 45, 8, 14, 47, 84, 97, 59, 56, 128, 147, 124, 116, 182, 199, 188, 158, 220, 241, 249, 201, 287, 280, 298, 291, 305, 340, 325, 308, 371, 356, 386, 355, 434, 448, 429, 425, 478, 458, 487, 459, 6, 44, 34, 5, 93, 84, 90, 87, 132, 105, 143, 115, 175, 150, 195, 198, 203, 242, 244, 233, 285, 298, 298, 255, 347, 302, 307, 312, 374, 381, 368, 391, 448, 423, 439, 423, 477, 453, 487, 470, 48, 11, 47, 45, 75, 50, 73, 56, 147, 101, 107, 126, 150, 175, 197, 190, 237, 207, 223, 227, 267, 283, 251, 281, 327, 342, 319, 346, 390, 390, 363, 372, 403, 450, 411, 445, 452, 486, 486, 461, 37, 35, 19, 19, 60, 62, 73, 100, 145, 148, 131, 111, 190, 150, 193, 179, 202, 204, 246, 206, 251, 270, 297, 267, 309, 326, 307, 348, 400, 353, 378, 377, 440, 404, 405, 401, 498, 479, 459, 483, 49, 28, 39, 9, 97, 93, 77, 98, 116, 101, 125, 129, 168, 172, 184, 183, 237, 214, 218, 247, 260, 280, 261, 290, 335, 313, 350, 316, 377, 369, 367, 353, 434, 400, 425, 426, 499, 470, 471, 461, 14, 49, 18, 16, 52, 76, 96, 82, 150, 105, 101, 128, 190, 187, 160, 165, 244, 243, 235, 201, 254, 291, 298, 253, 333, 339, 319, 340, 361, 357, 395, 372, 421, 414, 432, 410, 467, 488, 459, 452, 22, 37, 22, 29, 76, 64, 59, 61, 101, 132, 143, 133, 175, 193, 187, 188, 219, 221, 231, 239, 254, 265, 281, 276, 303, 341, 328, 319, 371, 378, 378, 391, 408, 438, 424, 444, 451, 450, 487, 457, 9, 15, 27, 14, 55, 56, 64, 92, 140, 148, 139, 135, 161, 160, 193, 159, 206, 230, 209, 247, 252, 253, 251, 285, 332, 309, 324, 339, 397, 384, 391, 361, 426, 448, 423, 442, 459, 468, 484, 491]
 
+		n = self.number_of_nodes
 		self.node_map[0] = self.sink
 		for i in range(1, self.number_of_nodes + 1):
 			Node = node(x[i-1], y[i-1], i,0,0)
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
 			self.node_map[i] = Node
-
-	def set_nx_graph(self):
-		G = nx.Graph()
-		for Node in self.node_list:
-			G.add_node(Node.id, pos = (Node.x, Node.y))
-		G.add_node(0, pos = (0, 0))
-		adj_mat = self.get_graph()
-		for i in range(len(adj_mat)):
-			for j in range(len(adj_mat[i])):
-				if adj_mat[i][j] == 1:
-					G.add_edge(i, j)
-		return G
 
 	def set_parameters(self,dist_para, len_of_packets,
 		    transmission_rate, speed_of_transmission,
@@ -98,8 +85,8 @@ class network:
 		self.transmission_speed = speed_of_transmission	#m/s
 		self.radio_distance = radio_distance	#m
 		self.get_graph()
-		self.apl = self.get_apl()
-		self.acc = self.get_acc()
+		self.apl = self.get_apl(self.graph)
+		self.acc = self.get_acc(self.graph)
 
 	def show_network(self):
 		"""
@@ -128,11 +115,102 @@ class network:
 			x = self.node_map[i]
 			for j in range(i+1, n+1):
 				y = self.node_map[j]
+
 				if	sqrt((x.x - y.x)**2 + (y.y-x.y)**2) <= self.radio_distance:
 					graph[i][j] = 1
 					graph[j][i] = 1
 		self.graph = graph
 		return graph
+
+	def get_acc(self, adj_matrix):
+		"""
+		Calculates the average clustering coefficient of a graph given its adjacency matrix.
+
+		Parameters:
+			-- adj_matrix (list of lists): Adjacency matrix of the graph represented as a list of lists, where
+											adj_matrix[i][j] is 1 if there is an edge between node i and node j,
+											and 0 otherwise.
+
+		Returns:
+			-- float: The average clustering coefficient of the graph.
+		"""
+		# adj_matrix = self.get_graph()
+		num_nodes = len(adj_matrix)
+		total_clustering_coefficient = 0
+
+		for i in range(num_nodes):
+			# Get the neighbors of node i
+			neighbors = []
+			for j in range(num_nodes):
+				if adj_matrix[i][j] == 1:
+					neighbors.append(j)
+
+			num_neighbors = len(neighbors)
+
+			if num_neighbors > 1:
+				# Calculate the number of edges between the neighbors of node i
+				num_edges_between_neighbors = 0
+				for j in range(num_neighbors):
+					for k in range(j+1, num_neighbors):
+						if adj_matrix[neighbors[j]][neighbors[k]] == 1:
+							num_edges_between_neighbors += 1
+
+				# Calculate the clustering coefficient of node i
+				clustering_coefficient = 2 * num_edges_between_neighbors / (num_neighbors * (num_neighbors - 1))
+				total_clustering_coefficient += clustering_coefficient
+
+		# Calculate the average clustering coefficient of the graph
+		average_coefficient = total_clustering_coefficient / num_nodes
+		average_coefficient = round(average_coefficient, 3)
+		self.acc = average_coefficient
+		self.graph = adj_matrix
+		return average_coefficient
+
+	def get_apl(self, adj_matrix):
+		"""
+		Calculates the average path length of a graph from its adjacency matrix.
+
+		Parameters:
+			-- adj_matrix (list of lists): Adjacency matrix of the graph represented as a list of lists, where
+										adj_matrix[i][j] is the weight of the edge from node i to node j. If
+										there is no edge between i and j, adj_matrix[i][j] should be None
+										or a large value representing infinity.
+
+		Returns:
+			-- float: The average path length of the graph.
+		"""
+		# adj_matrix = self.graph
+		num_nodes = len(adj_matrix)
+		total_path_length = 0
+
+		# Initialize the distance matrix with the adjacency matrix
+		dist_matrix = adj_matrix
+
+		# Set the diagonal elements of the distance matrix to 0
+		for i in range(num_nodes):
+			dist_matrix[i][i] = 0
+
+		# Perform Floyd-Warshall algorithm to find shortest paths between all pairs of nodes
+		for k in range(num_nodes):
+			for i in range(num_nodes):
+				for j in range(num_nodes):
+					if dist_matrix[i][k] != 0 and dist_matrix[k][j] != 0:
+						if dist_matrix[i][j] is None or dist_matrix[i][j] > dist_matrix[i][k] + dist_matrix[k][j]:
+							dist_matrix[i][j] = dist_matrix[i][k] + dist_matrix[k][j]
+
+		# Sum the distances in the distance matrix to calculate total path length
+		for i in range(num_nodes):
+			for j in range(num_nodes):
+				if dist_matrix[i][j] != 0:
+
+					total_path_length += dist_matrix[i][j]
+
+		# Calculate the average path length of the graph
+		average_length = total_path_length / (num_nodes * (num_nodes - 1))
+		average_length = round(average_length, 3)
+		self.apl = average_length
+		self.graph = adj_matrix
+		return average_length
 
 	def findShortestPath(self, curr:node):
 		"""
@@ -210,126 +288,52 @@ class network:
 		l+=(curr.dist(next)/self.transmission_speed)
 		return l
 
-	def get_apl(self):
-		if self.nx_graph == None:
-			self.nx_graph = self.set_nx_graph()
-		apl = nx.average_shortest_path_length(self.nx_graph)
-		return round(apl, 3)
+# def show_graph(self):
+	# 	G = nx.Graph()
+	# 	positions = {}
+	# 	for Node in self.node_list:
+	# 		# G.add_node(str(Node.id), pos = (Node.x, Node.y))
+	# 		positions[Node.id] = [Node.x, Node.y]
+	# 	ax = plt.figure().gca()
+	# 	ax.set_axis_off()
+	# 	options = {"node_size": 300, "node_color": "red"}
+	# 	nx.draw(G, positions, with_labels = True, **options)
+	# 	plt.show()
 
-	def get_acc(self):
-		if self.nx_graph == None:
-			self.nx_graph = self.set_nx_graph()
-		acc = nx.average_clustering(self.nx_graph)
-		return round(acc, 3)
-
-	def show_graph(self):
-		if self.nx_graph == None:
-			self.nx_graph = self.set_nx_graph()
-		G = self.nx_graph
-		color_map = ['red' if node == 0 else 'blue' for node in G]
-		pos=nx.get_node_attributes(G,'pos')
-		if self.number_of_nodes > 50:
-			plt.figure(2, figsize=(12, 8))
-			nx.draw(G,pos,node_size=60,font_size=8, node_color = color_map, with_labels = True)
-		else:
-			plt.figure(1)
-			nx.draw(G, pos, node_color = color_map, with_labels = True)
-
-		plt.show()
-
-# def get_acc(self):
+	# def dijkstra(self)->list:
 	# 	"""
-	# 	Calculates the average clustering coefficient of a graph given its adjacency matrix.
-
-	# 	Parameters:
-	# 		-- adj_matrix (list of lists): Adjacency matrix of the graph represented as a list of lists, where
-	# 										adj_matrix[i][j] is 1 if there is an edge between node i and node j,
-	# 										and 0 otherwise.
-
-	# 	Returns:
-	# 		-- float: The average clustering coefficient of the graph.
+	# 		Returns a dictionary where every node
+	# 		is mapped to the list containing shortest path
+	# 		found via Dijkstra's algorithm
 	# 	"""
-	# 	adj_matrix = self.get_graph()
-	# 	num_nodes = len(adj_matrix)
-	# 	total_clustering_coefficient = 0
+	# 	path = [[0, self.node_map[i].dist(self.sink)] for i in range(self.number_of_nodes + 1)]
+	# 	unvisited_nodes = {i for i in range(self.number_of_nodes + 1)}
+	# 	G = self.network_adj_matrix()
+	# 	dist = [int(1e9) for _ in range(self.number_of_nodes + 1)]
+	# 	#	sink is the source node
+	# 	dist[0] = 0
+	# 	li = [0]
+	# 	while len(li) != 0:
+	# 		currNode = pq.heappop(li)
+	# 		if currNode not in unvisited_nodes: continue
+	# 		unvisited_nodes.remove(currNode)
 
-	# 	for i in range(num_nodes):
-	# 		# Get the neighbors of node i
-	# 		neighbors = []
-	# 		for j in range(num_nodes):
-	# 			if adj_matrix[i][j] == 1:
-	# 				neighbors.append(j)
-
-	# 		num_neighbors = len(neighbors)
-
-	# 		if num_neighbors > 1:
-	# 			# Calculate the number of edges between the neighbors of node i
-	# 			num_edges_between_neighbors = 0
-	# 			for j in range(num_neighbors):
-	# 				for k in range(j+1, num_neighbors):
-	# 					if adj_matrix[neighbors[j]][neighbors[k]] == 1:
-	# 						num_edges_between_neighbors += 1
-
-	# 			# Calculate the clustering coefficient of node i
-	# 			clustering_coefficient = 2 * num_edges_between_neighbors / (num_neighbors * (num_neighbors - 1))
-	# 			total_clustering_coefficient += clustering_coefficient
-
-	# 	# Calculate the average clustering coefficient of the graph
-	# 	average_coefficient = total_clustering_coefficient / num_nodes
-	# 	average_coefficient = round(average_coefficient, 3)
-	# 	self.acc = average_coefficient
-	# 	return average_coefficient
+	# 		for n,x in G[currNode]:
+	# 			if dist[n] > dist[currNode] + x and n in unvisited_nodes:
+	# 				dist[n] = dist[currNode] + x
+	# 				path[n] = [currNode, x]
+	# 				pq.heappush(li, n)
+	# 	print(path)
+	# 	return path
 
 	# def get_apl(self):
-	# 	"""
-	# 	Calculates the average path length of a graph from its adjacency matrix.
+	# 	if self.nx_graph == None:
+	# 		self.nx_graph = self.set_nx_graph()
+	# 	apl = nx.average_shortest_path_length(self.nx_graph)
+	# 	return round(apl, 3)
 
-	# 	Parameters:
-	# 		-- adj_matrix (list of lists): Adjacency matrix of the graph represented as a list of lists, where
-	# 									adj_matrix[i][j] is the weight of the edge from node i to node j. If
-	# 									there is no edge between i and j, adj_matrix[i][j] should be None
-	# 									or a large value representing infinity.
-
-	# 	Returns:
-	# 		-- float: The average path length of the graph.
-	# 	"""
-	# 	adj_matrix = self.graph
-	# 	V = len(adj_matrix)
-	# 	total_path_length = 0
-	# 	INF = 99999
-
-	# 	# Initialize the distance matrix with the adjacency matrix
-	# 	dist= adj_matrix
-	# 	for i in range(V):
-	# 		for j in range(V):
-	# 			if i == j:
- 	# 	# Set the diagonal elements of the distance matrix to 0
-	# 				dist[i][j] = 0
-	# 			elif dist[i][j] == 0:
-	# 				dist[i][j] = INF
-
-	# 	# Perform Floyd-Warshall algorithm to find shortest paths between all pairs of nodes
-	# 	for k in range(V):
-	# 		# pick all vertices as source one by one
-	# 		for i in range(V):
-	# 			# Pick all vertices as destination for the
-	# 			# above picked source
-	# 			for j in range(V):
-	# 				# If vertex k is on the shortest path from
-	# 				# i to j, then update the value of dist[i][j]
-	# 				dist[i][j] = min(dist[i][j],
-	# 								dist[i][k] + dist[k][j])
-
-	# 	n = 0
-	# 	# Sum the distances in the distance matrix to calculate total path length
-	# 	for i in range(V):
-	# 		for j in range(V):
-	# 			if dist[i][j] != 0 and dist[i][j] != INF:
-	# 				n+= 1
-	# 				total_path_length += dist[i][j]
-
-	# 	# Calculate the average path length of the graph
-	# 	average_length = total_path_length / n
-	# 	average_length = round(average_length, 3)
-	# 	self.apl = average_length
-	# 	return average_length
+	# def get_acc(self):
+	# 	if self.nx_graph == None:
+	# 		self.nx_graph = self.set_nx_graph()
+	# 	acc = nx.average_clustering(self.nx_graph)
+	# 	return round(acc, 3)
