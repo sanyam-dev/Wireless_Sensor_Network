@@ -9,8 +9,9 @@ if __name__ == '__main__':
 	n_epochs = 4
 	alpha = 0.0003
 	env1 = env()
-	acc = env1.net.get_apl(env1.net.graph)
-	apl =  env1.net.get_acc(env1.net.graph)
+	acc = env1.acc
+	apl =  env1.apl
+	print(env1.action_space_n)
 	agent = Agent(n_actions=env1.action_space_n, batch_size=batch_size,
 					alpha=alpha, n_epochs=n_epochs,
 					input_dims=[env1.get_observation_space_shape()])
