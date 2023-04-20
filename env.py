@@ -42,8 +42,8 @@ class env:
 		acc = self.net.get_acc(self.obs_space)
 		apl = self.net.get_apl(self.obs_space)
 		#Hyper-parameters
-		w1 = 1
-		w2 = 6
+		w1 = 6
+		w2 = 1
 		reward = w1*acc + w2*(1/apl)
 		reward = round(reward, 3)
 		return reward
@@ -62,6 +62,8 @@ class env:
 		if mat[n1][n2] == 1:
 			reward = 0
 			mat_flatten = [num for sublist in mat for num in sublist]
+			# print("before:", self.net.acc, self.net.apl)
+			# print("after:", self.net.acc, self.net.apl)
 			return mat_flatten, reward
 		print("before:", self.net.acc, self.net.apl)
 

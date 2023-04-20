@@ -3,6 +3,7 @@ from network import network
 net = network(500, 500, 400, 0, 0)
 net.initialise_nodes_fixed(1, 0.4)
 net.set_parameters(2000,200,2000,2000, 50)
+
 energy_consumed=0
 
 dead_node = set()
@@ -12,7 +13,7 @@ sink = net.sink
 packets = 0
 rnd = 0
 op_log = []
-# net.show_network()
+net.show_network()
 total_latency=0
 while len(dead_node) < 0.9 * net.number_of_nodes:
 	p = []
