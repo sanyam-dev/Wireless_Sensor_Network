@@ -3,6 +3,7 @@ import random
 from math import sqrt
 import matplotlib.pyplot as plt
 import heapq as pq
+import networkx as nx
 
 class network:
 	"""
@@ -64,7 +65,7 @@ class network:
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
 			self.node_map[i] = Node
-
+		return x, y
 	def set_parameters(self,dist_para, len_of_packets,
 		    transmission_rate, speed_of_transmission,
 		    radio_distance
@@ -288,17 +289,27 @@ class network:
 		l+=(curr.dist(next)/self.transmission_speed)
 		return l
 
-# def show_graph(self):
-	# 	G = nx.Graph()
-	# 	positions = {}
-	# 	for Node in self.node_list:
-	# 		# G.add_node(str(Node.id), pos = (Node.x, Node.y))
-	# 		positions[Node.id] = [Node.x, Node.y]
-	# 	ax = plt.figure().gca()
-	# 	ax.set_axis_off()
-	# 	options = {"node_size": 300, "node_color": "red"}
-	# 	nx.draw(G, positions, with_labels = True, **options)
-	# 	plt.show()
+	def show_graph(self):
+		G = nx.Graph()
+		for i in range(self.number_of_nodes + 1):
+			curr = self.node_map[i]
+			G.add_node(i, pos = (curr.x, curr.y))
+		pos = nx.get_node_attributes(G, 'pos')
+		graph = self.get_graph()
+		G.add_node(0, pos = (0, 0))
+		for i in range(len(graph)):
+			for j in range(len(graph)):
+				if graph[i][j] == 1:
+					G.add_edge(i, j, color = 'black')
+		e = G.edges()
+		n_color = ['red' if node == 0 else 'blue' for node in G]
+		e_color =  [G[u][v]['color'] for u,v in e]
+		plt.figure(2, figsize=(12, 8))
+		nx.draw(G, pos, node_color = n_color, node_size = 60,
+	  				edge_color = e_color, with_labels = False)
+
+		plt.show()
+
 
 	# def dijkstra(self)->list:
 	# 	"""

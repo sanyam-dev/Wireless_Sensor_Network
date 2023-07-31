@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"name": "wsn",
+			"path": "."
+		},
+		{
+			"name": "results",
+			"path": "../../../.Trash/results"
+		}
+	],
+	"settings": {}
+}

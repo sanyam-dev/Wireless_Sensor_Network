@@ -2,7 +2,7 @@ from network import network
 
 net = network(500, 500, 400, 0, 0)
 net.initialise_nodes_fixed(1, 0.4)
-net.set_parameters(2000,200,2000,2000, 50)
+net.set_parameters(2000,200,2000,3*1e8, 50)
 
 energy_consumed=0
 
@@ -13,7 +13,7 @@ sink = net.sink
 packets = 0
 rnd = 0
 op_log = []
-net.show_network()
+net.show_graph()
 total_latency=0
 while len(dead_node) < 0.9 * net.number_of_nodes:
 	p = []
@@ -21,6 +21,7 @@ while len(dead_node) < 0.9 * net.number_of_nodes:
 	for x in net.node_list:
 		d=x.dist(sink)
 		et = x.energy_for_transmission(k,d)
+		er = x.energy_for_reception(k)
 		if not x.is_functional() or et > x.current_energy:
 			if x not in dead_node:
 				dead_node.add(x)
@@ -30,7 +31,7 @@ while len(dead_node) < 0.9 * net.number_of_nodes:
 		rnd_latency+=(net.latency(x,sink))
 
 		x.current_energy -= et
-		energy_consumed+=et
+		energy_consumed+=(et + er)
 		packets+= 1
 
 	print(n)

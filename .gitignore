@@ -10,3 +10,6 @@ __pycache__/
 abc_1.py
 /test
 test.py
+/results
+/result*
+*.png

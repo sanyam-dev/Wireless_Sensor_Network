@@ -1,7 +1,7 @@
 from network import network as nw
 import networkx as nx
 import matplotlib.pyplot as plt
-
+import os
 class env:
 	def __init__(self) -> None:
 		self.net = nw(500, 500, 400, 0, 0)
@@ -14,19 +14,21 @@ class env:
 		self.edges_added = []
 		self.obs_space = self.net.get_graph()
 		self.nxg = self.set_nxg()
+		self.init_nxg = self.nxg
 		self.apl = 9999
 		self.acc = 0
 
 	def set_nxg(self):
 		G = nx.Graph()
-		graph = self.net.get_graph()
 		mp = self.net.node_map
-		for i in range(1,len(graph)):
+		for i in range(1,self.net.number_of_nodes + 1):
 			G.add_node(i, pos = (mp[i].x, mp[i].y))
 		G.add_node(0, pos = (0, 0))
-		for i in range(len(graph)):
-			for j in range(len(graph)):
-				if graph[i][j] == 1:
+		for i in range(self.net.number_of_nodes + 1):
+			for j in range(self.net.number_of_nodes + 1):
+				if i == j:
+					continue
+				if mp[i].dist(mp[j]) <= self.net.radio_distance:
 					G.add_edge(i, j, color = 'black')
 		self.apl = round(nx.average_shortest_path_length(G), 3)
 		self.acc = round(nx.average_clustering(G), 3)
@@ -34,21 +36,30 @@ class env:
 
 
 	def set_action_space(self)->list:
-		net = self.net
-		mp = net.node_map
-		n = net.number_of_nodes
+		mp = self.net.node_map
+		n = self.net.number_of_nodes
 		action_space = []
 		for i in range(1, n+1):
 			for j in range(i+1, n+1):
-				if net.graph[i][j] == 0 and mp[i].dist(mp[j]) <= 0.6*net.area_length and mp[i].dist(mp[j]) >= 0.25*net.area_length:
+				if self.net.graph[i][j] == 0:
 					action_space.append([mp[i], mp[j]])
 		return action_space
 
 	def get_observation_space_shape(self):
 		mat = self.obs_space
-		mat_flatten = [num for sublist in mat for num in sublist]
-		return len(mat_flatten)
+		# mat_flatten = [num for sublist in mat for num in sublist]
+		mt2 = []
+		for i in range(len(self.obs_space)):
+			for j in range(len(self.obs_space)):
+				mt2.append(self.obs_space[i][j])
+		# if(mt2 == mat_flatten):
+		# 	print("could change obs space shape")
+		return len(mt2)
 
+	def flatten_obs_sp(self):
+		mat = self.obs_space
+		mat_flatten = [num for sublist in mat for num in sublist]
+		return mat_flatten
 
 	def set_observation_space(self):
 		mat = self.net.get_graph()
@@ -56,6 +67,7 @@ class env:
 
 	def reset(self):
 		self.net = self.initial_net
+		self.graph = self.net.get_graph()
 		self.obs_space = self.initial_graph
 		mat = self.obs_space
 		self.edges_added = []
@@ -63,11 +75,11 @@ class env:
 		mat_flatten = [num for sublist in mat for num in sublist]
 		return mat_flatten
 
-	def get_reward(self):
+	def get_reward(self, acc1, apl1):
 		acc = self.acc
 		apl = self.apl
 		#Hyper-parameters
-		w1 = 10
+		w1 = 1
 		w2 = 1
 		reward = w1*acc + w2*(1/apl)
 		reward = round(reward, 3)
@@ -85,14 +97,18 @@ class env:
 		n2 = li[1].id
 		mat = self.obs_space
 		reward = 0
-		if mat[n1][n2] == 1:
-			reward = 0
-			mat_flatten = [num for sublist in mat for num in sublist]
-			# print("before:", self.net.acc, self.net.apl)
-			# print("after:", self.net.acc, self.net.apl)
-			return mat_flatten, reward
+		if [n1, n2] in self.edges_added:
+			print("repeat",end = " ")
+			# reward = 0
+			# mat_flatten = [num for sublist in mat for num in sublist]
+			# # print("before:", self.net.acc, self.net.apl)
+			# # print("after:", self.net.acc, self.net.apl)
+			# return mat_flatten, reward
 		print("before:", self.acc, self.apl)
+		acc1 = self.acc
+		apl1= self.apl
 		self.edges_added.append([n1, n2])
+		self.edges_added.append([n2, n1])
 		mat[n1][n2] = 1
 		mat[n2][n1] = 1
 		G = self.nxg
@@ -101,20 +117,23 @@ class env:
 		self.apl = round(nx.average_shortest_path_length(G), 3)
 		self.acc = round(nx.average_clustering(G), 3)
 		self.obs_space = mat
-		reward = self.get_reward()
+		reward = self.get_reward(acc1, apl1)
 		print("after:", self.acc, self.apl)
 		mat_flatten = [num for sublist in mat for num in sublist]
 		return mat_flatten, reward
 
-	def show_graph(self):
+	def save_graph(self, path, i):
 		G = self.nxg
 		pos = nx.get_node_attributes(G, 'pos')
 		e = G.edges()
 		n_color = ['red' if node == 0 else 'blue' for node in G]
 		e_color =  [G[u][v]['color'] for u,v in e]
 		plt.figure(2, figsize=(12, 8))
-		nx.draw(G, pos, node_color = n_color,
-	  				edge_color = e_color, with_labels = True)
-
-		plt.show()
+		nx.draw(G, pos, node_color = n_color, node_size = 60,
+	  				edge_color = e_color, with_labels = False)
+		f = "episode" + str(i)
+		path = os.path.join(path, f)
+		plt.savefig(path)
+		plt.clf()
+		# plt.show()
 

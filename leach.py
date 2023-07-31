@@ -10,10 +10,10 @@ p_gen = 0	#	messages generated
 energy_consumed=0
 #	setting network parameters: distribution parameters, packet length,
 # 	transmission_rate and speed_of_transmission
-net.set_parameters(2000, 200, 2000, 2000, 50)
+net.initialise_nodes_fixed(1, 0.4)
+net.set_parameters(2000, 200, 2000, 3*1e8, 50)
 
 #	setting node initial_eneregy and node critical_energy to function
-net.initialise_nodes_fixed(1, 0.4)
 net.show_network()
 
 #	copying reocurring network parameters
@@ -97,16 +97,16 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 
 	#Data Transmission
 
-	
+
 	quant={int:int}
 	for i in range(net.number_of_nodes + 1):
 		quant[i] = 0
 	for Node in net.node_list:
 		if Node.role == 0:
-				
+
 			headNode = net.node_map[Node.clusterID]
 			trns=Node.energy_for_transmission(net.packet_length, Node.dist_to_head)
-			
+
 			recep=headNode.energy_for_reception(net.packet_length)
 
 			if(headNode.current_energy > recep):
