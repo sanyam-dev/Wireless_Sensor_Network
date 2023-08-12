@@ -6,7 +6,7 @@ import random
 import os
 
 def dir():
-	parent_dir = "/Users/ashu/Projects/python/wsn"
+	parent_dir = "/Users/ashu/Projects/python/wsn/results/"
 	filename = 'result'
 	path = os.path.join(parent_dir,filename)
 	try:
@@ -87,11 +87,11 @@ if __name__ == '__main__':
 			best_apl = env1.apl
 
 		history.append([env1.acc, env1.apl])
+		env1.save_graph_npy(path, i)
 			# agent.save_models()
-
+		env1.save_graph(path, i)
 		print('episode', i, 'score %.1f' % score, 'avg score %.1f' % avg_score,
 				'time_steps', n_steps, 'learning_steps', learn_iters)
-		env1.save_graph(path, i)
 	x = [i+1 for i in range(len(score_history))]
 	# plot_learning_curve(x, score_history)
 	write_history(path, history,-1)

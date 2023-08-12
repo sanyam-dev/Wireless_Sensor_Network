@@ -171,10 +171,6 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 	# 					energy_consumed+=snk
 	# 					rnd_latency+=(net.latency(headNode,sink))
 
-
-
-
-
 	print(Node.id, " : ", Node.current_energy)
 	print(s_trans ,p_gen,s_trans/p_gen)
 	operation_log.append([rounds, operational_nodes, net.node_list, [Node.id for Node in dead_nodes]])

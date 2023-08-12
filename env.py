@@ -2,6 +2,9 @@ from network import network as nw
 import networkx as nx
 import matplotlib.pyplot as plt
 import os
+import numpy as np
+
+
 class env:
 	def __init__(self) -> None:
 		self.net = nw(500, 500, 400, 0, 0)
@@ -17,6 +20,9 @@ class env:
 		self.init_nxg = self.nxg
 		self.apl = 9999
 		self.acc = 0
+		self.latency = -1
+		self.throughput = -1
+		self.energy_consumed = -1
 
 	def set_nxg(self):
 		G = nx.Graph()
@@ -34,6 +40,10 @@ class env:
 		self.acc = round(nx.average_clustering(G), 3)
 		return G
 
+	def save_graph_npy(self, path, i):
+		adj_matrix = nx.to_numpy_array(self.nxg)
+		np.save(path +'/'+ str(i) + '-graph_data.npy', adj_matrix)
+		print("graph .npy saved : " + path)
 
 	def set_action_space(self)->list:
 		mp = self.net.node_map
@@ -98,13 +108,13 @@ class env:
 		mat = self.obs_space
 		reward = 0
 		if [n1, n2] in self.edges_added:
-			print("repeat",end = " ")
+			print("repeat: ", n1, n2, end = " ")
 			# reward = 0
 			# mat_flatten = [num for sublist in mat for num in sublist]
 			# # print("before:", self.net.acc, self.net.apl)
 			# # print("after:", self.net.acc, self.net.apl)
 			# return mat_flatten, reward
-		print("before:", self.acc, self.apl)
+		print("before:", self.acc, self.apl, n1, n2)
 		acc1 = self.acc
 		apl1= self.apl
 		self.edges_added.append([n1, n2])
@@ -116,6 +126,7 @@ class env:
 			G.add_edge(edge[0], edge[1], color = 'red')
 		self.apl = round(nx.average_shortest_path_length(G), 3)
 		self.acc = round(nx.average_clustering(G), 3)
+		# self.latency, self.throughput, self.energy_consumed = calculateVariables(G)
 		self.obs_space = mat
 		reward = self.get_reward(acc1, apl1)
 		print("after:", self.acc, self.apl)
