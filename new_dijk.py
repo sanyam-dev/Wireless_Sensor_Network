@@ -4,10 +4,8 @@ from network import *
 net = network(500, 500, 400, 0, 0)
 net.initialise_nodes_fixed(1, 0.4)
 net.set_parameters(2000, 200, 2000, 3*1e8, 50)
+net.set_nxg()
 sink = net.sink
-# net.show_network()
-# net.get_graph()
-# print(net.get_acc())
 dead_node = set()
 k = net.packet_length
 rnds = 0

@@ -3,16 +3,18 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-
+import pickle
 
 class env:
 	def __init__(self) -> None:
 		self.net = nw(500, 500, 400, 0, 0)
-		self.net.initialise_nodes_fixed(1, 0.4)
-		self.net.set_parameters(2000,200,2000,2000,50)
+		# self.net.initialise_nodes_fixed(1, 0.4)
+		# self.net.set_parameters(2000,200,2000,2000,50)
+		self.net.load_network_topology("results/network_data/network1network_data.npy")
 		self.initial_net = self.net
 		self.initial_graph = self.net.get_graph()
-		self.action_space = self.set_action_space()
+		# self.action_space = self.set_action_space()
+		self.action_space = self.set_action_space_server()
 		self.action_space_n = len(self.action_space)
 		self.edges_added = []
 		self.obs_space = self.net.get_graph()
@@ -41,9 +43,13 @@ class env:
 		return G
 
 	def save_graph_npy(self, path, i):
-		adj_matrix = nx.to_numpy_array(self.nxg)
-		np.save(path +'/'+ str(i) + '-graph_data.npy', adj_matrix)
+		graph_data = {
+			'edges': list(self.nxg.edges()),
+			'edges_color': list(self.edge_color)
+		}
+		np.save(path +'/'+ str(i) + '-graph_data.npy', graph_data)
 		print("graph .npy saved : " + path)
+		# self.net.save_network(path+'/network/' + str(i))
 
 	def set_action_space(self)->list:
 		mp = self.net.node_map
@@ -53,6 +59,15 @@ class env:
 			for j in range(i+1, n+1):
 				if self.net.graph[i][j] == 0:
 					action_space.append([mp[i], mp[j]])
+		return action_space
+
+	def set_action_space_server(self)->list:
+		mp = self.net.node_map
+		n = self.net.number_of_nodes
+		action_space = []
+		for i in range(1,n+1):
+			if self.net.graph[i][0] == 0:
+				action_space.append([mp[i], mp[0]])
 		return action_space
 
 	def get_observation_space_shape(self):
@@ -85,7 +100,9 @@ class env:
 		mat_flatten = [num for sublist in mat for num in sublist]
 		return mat_flatten
 
-	def get_reward(self, acc1, apl1):
+	def get_reward(self, edge_repeat):
+		if(edge_repeat == 1):
+			return -1
 		acc = self.acc
 		apl = self.apl
 		#Hyper-parameters
@@ -107,7 +124,9 @@ class env:
 		n2 = li[1].id
 		mat = self.obs_space
 		reward = 0
+		edge_repeat = 0
 		if [n1, n2] in self.edges_added:
+			edge_repeat = 1
 			print("repeat: ", n1, n2, end = " ")
 			# reward = 0
 			# mat_flatten = [num for sublist in mat for num in sublist]
@@ -128,7 +147,7 @@ class env:
 		self.acc = round(nx.average_clustering(G), 3)
 		# self.latency, self.throughput, self.energy_consumed = calculateVariables(G)
 		self.obs_space = mat
-		reward = self.get_reward(acc1, apl1)
+		reward = self.get_reward(edge_repeat)
 		print("after:", self.acc, self.apl)
 		mat_flatten = [num for sublist in mat for num in sublist]
 		return mat_flatten, reward
@@ -139,12 +158,14 @@ class env:
 		e = G.edges()
 		n_color = ['red' if node == 0 else 'blue' for node in G]
 		e_color =  [G[u][v]['color'] for u,v in e]
+		self.edge_color = e_color
 		plt.figure(2, figsize=(12, 8))
 		nx.draw(G, pos, node_color = n_color, node_size = 60,
-	  				edge_color = e_color, with_labels = False)
+			edge_color = e_color, with_labels = True, font_color = "green")
 		f = "episode" + str(i)
 		path = os.path.join(path, f)
 		plt.savefig(path)
 		plt.clf()
+
 		# plt.show()
 

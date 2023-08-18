@@ -11,7 +11,7 @@ def dir():
 	path = os.path.join(parent_dir,filename)
 	try:
 		os.makedirs(path)
-	except  OSError:
+	except FileExistsError:
 		filename += str(random.randint(0,100))
 		path = os.path.join(parent_dir, filename)
 		os.makedirs(path)
@@ -44,7 +44,7 @@ if __name__ == '__main__':
 	agent = Agent(n_actions=env1.action_space_n, batch_size=batch_size,
 					alpha=alpha, n_epochs=n_epochs,
 					input_dims=[env1.get_observation_space_shape()])
-	n_games = 3
+	n_games = 5
 	history = []
 	print(env1.action_space_n)
 	path = dir()
@@ -87,9 +87,8 @@ if __name__ == '__main__':
 			best_apl = env1.apl
 
 		history.append([env1.acc, env1.apl])
-		env1.save_graph_npy(path, i)
-			# agent.save_models()
 		env1.save_graph(path, i)
+		env1.save_graph_npy(path, i)
 		print('episode', i, 'score %.1f' % score, 'avg score %.1f' % avg_score,
 				'time_steps', n_steps, 'learning_steps', learn_iters)
 	x = [i+1 for i in range(len(score_history))]
