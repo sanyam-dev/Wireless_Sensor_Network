@@ -400,19 +400,21 @@ class network:
 		y = network_data['y']
 		graph_data = network_data['graph_data']
 		params = network_data['params']
-
 		self.number_of_nodes = params['number_of_nodes']
 		self.area_length = params['area_x']
 		self.area_width = params['area_y']
 		sink = node(params['base_x'], params['base_y'], 0, 0, 0)
 		sink.node_energy_setup(5*1e9, -1*1e9)
 		self.sink = sink
+		node_initial_energy = params['node_initial_energy']
+		node_critical_energy = params['node_critical_energy']
+
 		print(params)
 		self.node_map[0] = self.sink
 		for i in range(1, self.number_of_nodes + 1):
 			Node = node(x[i], y[i], i, 0, 0)
 			# Node.node_energy_setup(params["node_initial_energy"], params["node_critical_energy"])
-			Node.node_energy_setup(1, 0.4)
+			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
 			self.node_map[i] = Node
 
