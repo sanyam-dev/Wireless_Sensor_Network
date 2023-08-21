@@ -26,7 +26,7 @@ def load_network(graph_data_path, save_mode):
 
 #initialise network
 # graph_data_path = "results/result32/0-graph_data.npy"
-graph_data_path = "results/result7/0-graph_data.npy"
+graph_data_path = "results/result39/4-graph_data.npy"
 # graph_data_path = "results/network_data/network1network_data.npy"
 graph_data= load_network(graph_data_path, 0)
 

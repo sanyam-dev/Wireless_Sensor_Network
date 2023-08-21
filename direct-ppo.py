@@ -21,7 +21,7 @@ def load_network(graph_data_path, save_mode):
 	return graph_data
 
 
-graph_data_path = "results/result50/1-graph_data.npy"
+graph_data_path = "results/result39/1-graph_data.npy"
 # graph_data_path = "results/network_data/network1network_data.npy"
 graph_data = load_network(graph_data_path, save_mode=0)
 G = net.set_nxg_from_npy(graph_data)
