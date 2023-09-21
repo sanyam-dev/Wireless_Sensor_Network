@@ -12,8 +12,8 @@ def load_network(graph_data_path, save_mode):
 	save_mode: 1 -> new network data
 	"""
 	if(save_mode == 0):
-		net.initialise_nodes_fixed(1, 0.4)
-		net.set_parameters(2000, 200, 2000, 3*1e8, 50)
+		net.initialise_nodes_fixed(1, 0)
+		net.set_parameters(2000, 8, 2000, 3*1e8, 50)
 		#load graph
 
 		graph_data = np.load(graph_data_path, allow_pickle=True).item()
@@ -26,9 +26,9 @@ def load_network(graph_data_path, save_mode):
 
 #initialise network
 # graph_data_path = "results/result32/0-graph_data.npy"
-graph_data_path = "results/result39/4-graph_data.npy"
-graph_data_path = "results/network_data/network1network_data.npy"
-graph_data= load_network(graph_data_path, 1)
+graph_data_path = "results/result88/7-graph_data.npy"
+# graph_data_path = "results/network_data/network1network_data.npy"
+graph_data= load_network(graph_data_path, 0)
 
 
 
@@ -96,6 +96,9 @@ while G.number_of_nodes() > 0.1*n:
 
 		#active node message generation
 		p_gen += 1
+		# try:
+		# 	path = nx.shortest_path(G, i, 0, weight, "dijkstra")
+		# except:
 		path = net.findShortestPath(curr)
 
 		# print(i, path)

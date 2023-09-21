@@ -42,11 +42,13 @@ class network:
 		self.node_map[0] = self.sink
 		x = 1
 		y = 1
+		l = self.area_length/10
+		w = self.area_width/10
 		for i in range(1, self.number_of_nodes + 1):
-			x_l = (x-1)*50
-			x_r = x*50
-			y_l = (y-1)*50
-			y_r = (y)*50
+			x_l = (x-1)*l
+			x_r = x*l
+			y_l = (y-1)*w
+			y_r = (y)*w
 			Node = node(random.randint(x_l,x_r), random.randint(y_l,y_r), i,0,0)
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)

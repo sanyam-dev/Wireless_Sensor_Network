@@ -53,7 +53,7 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 			net.node_list.remove(Node)
 			pass
 
-		if(Node.last_head_rnd - rounds > int(1/P)):
+		if(rounds - Node.last_head_rnd > int(1/P)):
 			not_cluster_heads.add(Node.id)
 
 		Tn = 0

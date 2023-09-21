@@ -13,11 +13,13 @@ class env:
 		self.net.load_network_topology("results/network_data/network1network_data.npy")
 		self.initial_net = self.net
 		self.initial_graph = self.net.get_graph()
-		# self.action_space = self.set_action_space()
-		self.action_space = self.set_action_space_server()
+		self.action_space = self.set_action_space()
+		# self.action_space = self.set_action_space_server()
 		self.action_space_n = len(self.action_space)
 		self.edges_added = []
+		self.action_added = []
 		self.obs_space = self.net.get_graph()
+		self.graph = self.obs_space
 		self.nxg = self.set_nxg()
 		self.init_nxg = self.nxg
 		self.apl = 9999
@@ -47,7 +49,11 @@ class env:
 			'edges': list(self.nxg.edges()),
 			'edges_color': list(self.edge_color)
 		}
-		np.save(path +'/'+ str(i) + '-graph_data.npy', graph_data)
+		try:
+			np.save(path +'/'+ str(i) + '-graph_data.npy', graph_data)
+		except:
+			os.makedirs(path)
+			np.save(path +'/'+ str(i) + '-graph_data.npy', graph_data)
 		print("graph .npy saved : " + path)
 		# self.net.save_network(path+'/network/' + str(i))
 
@@ -92,7 +98,7 @@ class env:
 
 	def reset(self):
 		self.net = self.initial_net
-		self.graph = self.net.get_graph()
+		# self.graph = self.net.get_graph()
 		self.obs_space = self.initial_graph
 		mat = self.obs_space
 		self.edges_added = []
@@ -128,11 +134,6 @@ class env:
 		if [n1, n2] in self.edges_added:
 			edge_repeat = 1
 			print("repeat: ", n1, n2, end = " ")
-			# reward = 0
-			# mat_flatten = [num for sublist in mat for num in sublist]
-			# # print("before:", self.net.acc, self.net.apl)
-			# # print("after:", self.net.acc, self.net.apl)
-			# return mat_flatten, reward
 		print("before:", self.acc, self.apl, n1, n2)
 		acc1 = self.acc
 		apl1= self.apl
@@ -164,8 +165,32 @@ class env:
 			edge_color = e_color, with_labels = True, font_color = "green")
 		f = "episode" + str(i)
 		path = os.path.join(path, f)
-		plt.savefig(path)
-		plt.clf()
+		try:
+			plt.savefig(path)
+			plt.clf()
+		except:
+			os.makedirs(path)
+			plt.savefig(path)
+			plt.clf()
 
 		# plt.show()
 
+	def reset_to_copy(self, env1):
+		self.reset()
+		for edge in env1.action_added:
+			self.add(edge)
+
+
+	def add(self, action):
+		# print("action",action)
+		u = action[0].id
+		v = action[1].id
+		self.obs_space[u][v] = 1
+		self.obs_space[v][u] = 1
+		self.nxg.add_edge(u, v, color = 'red')
+		try:
+			self.action_space.remove(action)
+		except ValueError:
+			pass
+		self.action_space_n = len(self.action_space)
+		self.action_added.append(action)

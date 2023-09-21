@@ -24,9 +24,9 @@ def write_history(par_path, history, round):
 	fname += ".txt"
 	path = os.path.join(par_path,  fname)
 	with open(path, "w") as fp:
-		fp.write("no.    acc    apl\n")
+		fp.write("no.,acc,apl,small_worldness\n")
 		for i in range(len(history)):
-			s = str(i) + "    " + str(history[i][0]) + "    " + str(history[i][1]) + "\n"
+			s = str(i) + "," + str(history[i][0]) + "," + str(history[i][1]) + "," + str(history[i][2])+ "\n"
 			fp.write(s)
 
 
@@ -44,7 +44,8 @@ if __name__ == '__main__':
 	agent = Agent(n_actions=env1.action_space_n, batch_size=batch_size,
 					alpha=alpha, n_epochs=n_epochs,
 					input_dims=[env1.get_observation_space_shape()])
-	n_games = 5
+	n_games = 20
+	number_of_edges = 200
 	history = []
 	print(env1.action_space_n)
 	path = dir()
@@ -57,26 +58,29 @@ if __name__ == '__main__':
 	avg_score = 0
 	n_steps = 0
 
-	for i in range(n_games):
+	for i in range(n_games):  #game
 		env1.reset()
 		observation_flatten = env1.flatten_obs_sp()
 		done = 0
 		score = 0
 		rnd_his = []
-		rnd_his.append([env1.acc, env1.apl])
-		while not done == 200:
+		rnd_his.append([env1.acc, env1.apl, round(env1.acc/env1.apl, 4)])
+		while not done == number_of_edges:	#round
+			print("round : ", done)
 			action, prob, val = agent.choose_action(observation_flatten)
 			# observation_, reward, done, info = env.step(action)
 			observation_, reward = env1.step(action)											## commment later
-			rnd_his.append([env1.acc, env1.apl])
+			rnd_his.append([env1.acc, env1.apl, round(env1.acc/env1.apl, 4)])
 			n_steps += 1
 			score += reward
 			done += 1																			## comment later
-			agent.remember(observation_flatten, action, prob, val, reward, done)
+			agent.remember(observation_, action, prob, val, reward, done)
 			if n_steps % N == 0:
 				agent.learn()
 				learn_iters += 1
 			observation_flatten = observation_
+			print("-------")
+		agent.learn()
 		write_history(path, rnd_his, i)
 		score_history.append(score)
 		avg_score = np.mean(score_history[-100:])
@@ -86,7 +90,7 @@ if __name__ == '__main__':
 			best_acc = env1.acc
 			best_apl = env1.apl
 
-		history.append([env1.acc, env1.apl])
+		history.append([env1.acc, env1.apl, round(env1.acc/env1.apl, 4)])
 		env1.save_graph(path, i)
 		env1.save_graph_npy(path, i)
 		print('episode', i, 'score %.1f' % score, 'avg score %.1f' % avg_score,
