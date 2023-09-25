@@ -8,15 +8,11 @@ net = network(500, 500, 400, 0, 0)
 s_trans = 0		#	successful transactions
 p_gen = 0	#	messages generated
 energy_consumed=0
-#	setting network parameters: distribution parameters, packet length,
-# 	transmission_rate and speed_of_transmission
-net.initialise_nodes_fixed(1, 1e-4)
+net.initialise_nodes_fixed(1, 0.1)
 net.set_parameters(2000, 8, 2000, 3*1e8, 50)
-
-#	setting node initial_eneregy and node critical_energy to function
+net.set_nxg()
 net.show_network()
-
-#	copying reocurring network parameters
+k = net.packet_length   
 sink = net.sink
 operational_nodes =	net.number_of_nodes
 dead_nodes = []
@@ -37,6 +33,7 @@ failed_iterations = 0
 #	main loop
 rnd_latency=0
 while len(dead_nodes) < 0.9*net.number_of_nodes:
+    
 	print(len(dead_nodes))
 	#	each node transmit data once every round
 	total_latency+=rnd_latency
@@ -45,6 +42,8 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 	rnd_latency=0
 	#	Advertising Phase
 	for Node in net.node_list:
+		
+		# print("first")
 
 		Node.role = 0
 
@@ -52,12 +51,10 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 			operational_nodes = operational_nodes - 1
 			dead_nodes.append(Node)
 			net.node_list.remove(Node)
+			pass
 
-			# pass
-
-		if(rounds - Node.last_head_rnd > int(1/P)):
+		if(Node.last_head_rnd - rounds > int(1/P)):
 			not_cluster_heads.add(Node.id)
-			print("in the loop")
 
 		Tn = 0
 
@@ -83,11 +80,12 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 
 	print(len(round_wise_cluster_head), end = " ")
 	for x in round_wise_cluster_head:
-		print(x.id , end = " ")
+		print(x.id, end = " ")
 	print()
 
 	#	create clusters
 	for Node in net.node_list:
+		# print("here")
 		if Node.role == 0:
 			for head in round_wise_cluster_head:
 				if Node.dist_to_head > Node.dist(head):
@@ -105,7 +103,6 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 	for i in range(net.number_of_nodes + 1):
 		quant[i] = 0
 	for Node in net.node_list:
-	
 		print(Node.id, " : ", Node.current_energy)
 
 		if Node.role == 0:
@@ -119,69 +116,53 @@ while len(dead_nodes) < 0.9*net.number_of_nodes:
 				if(Node.current_energy > trns):
 					p_gen+=1
 					Node.current_energy -= trns
-					# print(trns)
 					energy_consumed+=trns
 					headNode.current_energy -= recep
-					# print(recep)
 					energy_consumed+=recep
 					rnd_latency+=(net.latency(Node,headNode))
 					quant[Node.clusterID]+=1
 
 
 	for Node in net.node_list:
+
 		if Node.role == 1:
 
 			while quant[Node.id]:
-				snk=Node.energy_for_transmission(net.packet_length, Node.dist(sink))
-				if(snk>Node.current_energy):
-					break
-				s_trans += 1
-				quant[Node.id] -= 1
-				Node.current_energy -= snk
-				# print(snk)
-				energy_consumed+=snk
-				rnd_latency+=(net.latency(Node,sink))
-			snk=Node.energy_for_transmission(net.packet_length, Node.dist(sink))
-			if(snk<=Node.current_energy):
-				p_gen +=1
-				s_trans+=1
-				Node.current_energy -= snk
-				energy_consumed+=snk
-				rnd_latency+=(net.latency(Node,sink))
 
-#for better throughput
-	# for Node in net.node_list: #send data from all heads
-	# 	if Node.role == 1:
-	# 		snk=Node.energy_for_transmission(net.packet_length, Node.dist(sink))
-	# 		if(snk<=Node.current_energy):
-	# 			p_gen +=1
-	# 			s_trans+=1
-	# 			Node.current_energy -= snk
-	# 			energy_consumed+=snk
-	# 			rnd_latency+=(net.latency(Node,sink))
+				quant[Node.id]-= 1
 
-	# for Node in net.node_list:
-	# 	if Node.role == 0:
-	# 		headNode = net.node_map[Node.clusterID]
-	# 		trns=Node.energy_for_transmission(net.packet_length, Node.dist_to_head)
-	# 		recep=headNode.energy_for_reception(net.packet_length)
+				curr=Node
+				path = net.findShortestPath(curr)
+				while len(path) != 0:
 
-	# 		if(headNode.current_energy > recep):
-	# 			if(Node.current_energy > trns):
-	# 				p_gen+=1
-	# 				Node.current_energy -= trns
-	# 				energy_consumed+=trns
-	# 				headNode.current_energy -= recep
-	# 				energy_consumed+=recep #recieved at head
-	# 				snk=headNode.energy_for_transmission(net.packet_length, headNode.dist(sink))
-	# 				if(snk<=headNode.current_energy):
-	# 					s_trans+=1
-	# 					headNode.current_energy -= snk
-	# 					energy_consumed+=snk
-	# 					rnd_latency+=(net.latency(headNode,sink))
+					
+					next = net.node_map[path.pop()]
+					rnd_latency+=(net.latency(curr,next))
+					trns=curr.energy_for_transmission(k, next.dist(curr))
+					curr.current_energy -= trns
+					recep=next.energy_for_reception(k)
+					next.current_energy -= recep
+					energy_consumed+=recep
+					curr=next
+				
+                
+				snk=curr.energy_for_transmission(net.packet_length, curr.dist(net.sink))
+				if(curr.id==0):
+					s_trans+=1
+				
+				elif curr.current_energy > snk:
+					curr.current_energy -= snk
+					rnd_latency+=(net.latency(curr,sink))
+					energy_consumed+=snk
+					s_trans += 1
+
+				elif curr.id== i :
+					dead_nodes.append(Node)
+
 
 	print(Node.id, " : ", Node.current_energy)
 	print(s_trans ,p_gen,s_trans/p_gen)
+	
 	operation_log.append([rounds, operational_nodes, net.node_list, [Node.id for Node in dead_nodes]])
 
 total_latency+=rnd_latency

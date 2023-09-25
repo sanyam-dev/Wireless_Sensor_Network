@@ -10,6 +10,10 @@ __pycache__/
 abc_1.py
 /test
 test.py
+utils
+utils\yml_to_npy.py
+utils\network_data.npy
+.gitignore
 # *.png
 # /graph_data
 # graph_data/server/0-graph_data.npy

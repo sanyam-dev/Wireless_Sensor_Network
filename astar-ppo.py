@@ -35,8 +35,8 @@ graph_data = np.load(graph_data_path, allow_pickle=True).item()
 
 #initialise network
 net = network(500, 500, 400, 0, 0)
-net.initialise_nodes_fixed(1, 0.4)
-net.set_parameters(2000, 200, 2000, 3*1e8, 50)
+net.initialise_nodes_fixed(1, 0)
+net.set_parameters(2000, 8, 2000, 3*1e8, 50)
 
 sink = net.sink
 dead_node = set()

@@ -11,8 +11,8 @@ def load_network(graph_data_path, save_mode):
 	save_mode: 1 -> new network data
 	"""
 	if(save_mode == 0):
-		net.initialise_nodes_fixed(1, 0.4)
-		net.set_parameters(2000, 200, 2000, 3*1e8, 50)
+		net.initialise_nodes_fixed(1, 0)
+		net.set_parameters(2000, 8, 2000, 3*1e8, 50)
 		#load graph
 		graph_data = np.load(graph_data_path, allow_pickle=True).item()
 	else:

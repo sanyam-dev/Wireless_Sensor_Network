@@ -2,8 +2,8 @@ from node import *
 from network import *
 
 net = network(500, 500, 400, 0, 0)
-net.initialise_nodes_fixed(1, 0.4)
-net.set_parameters(2000, 200, 2000, 3*1e8, 50)
+net.initialise_nodes_fixed(1, 0)
+net.set_parameters(2000, 8, 2000, 3*1e8, 50)
 net.set_nxg()
 sink = net.sink
 dead_node = set()
@@ -42,6 +42,8 @@ while len(dead_node) < 0.9*n:
 			curr.current_energy -= trns
 			recep=next.energy_for_reception(k)
 			next.current_energy -= recep
+			print(trns)
+			print(recep)
 			energy_consumed+=recep
 			curr = next
 
@@ -50,6 +52,7 @@ while len(dead_node) < 0.9*n:
 			s_trans += 1
 		elif curr.current_energy > snk:
 			curr.current_energy -= snk
+			print(snk)
 			rnd_latency+=(net.latency(curr,sink))
 			energy_consumed+=snk
 			s_trans += 1
@@ -58,9 +61,9 @@ while len(dead_node) < 0.9*n:
 
 
 	rnds += 1
-	print("----")
-	print(rnds, len(dead_node))
-	print("----")
+	# print("----")
+	# print(rnds, len(dead_node))
+	# print("----")
 
 total_latency+=rnd_latency
 

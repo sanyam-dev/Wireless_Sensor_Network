@@ -8,8 +8,8 @@ import pickle
 class env:
 	def __init__(self) -> None:
 		self.net = nw(500, 500, 400, 0, 0)
-		# self.net.initialise_nodes_fixed(1, 0.4)
-		# self.net.set_parameters(2000,200,2000,2000,50)
+		# self.net.initialise_nodes_fixed(1, 1e-3)
+		# self.net.set_parameters(2000,8,2000,2000,50)
 		self.net.load_network_topology("results/network_data/network1network_data.npy")
 		self.initial_net = self.net
 		self.initial_graph = self.net.get_graph()
