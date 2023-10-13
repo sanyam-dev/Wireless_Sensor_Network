@@ -100,7 +100,7 @@ class network:
 		self.distribution_parameters = dist_para
 		self.packet_length = len_of_packets	#bits
 		self.transmission_rate = transmission_rate	#kbps
-		self.transmission_speed = speed_of_transmission	#m/s
+		self.transmission_speed = speed_of_transmission	#bps
 		self.radio_distance = radio_distance	#m
 		self.get_graph()
 		self.apl = self.get_apl(self.graph)
@@ -395,6 +395,11 @@ class network:
 		except:
 			print("failed to save :(")
 
+	def save_attribute(self,filename, data):
+		try:
+			np.save(filename + "-data.npy", data)
+		except:
+			print("failed!")
 
 	def load_network_topology(self, path):
 		network_data = np.load(path, allow_pickle=True).item()
@@ -424,6 +429,27 @@ class network:
 		      params['speed_of_transmission'], params['radio_distance']
 		    )
 		return x, y, graph_data
+
+
+	def calculate_latency(self):
+		latency_matrix = [[0 for _ in range(self.number_of_nodes + 2)] for _ in range(self.number_of_nodes + 2)]
+		for i in range(self.number_of_nodes + 1):
+			for j in range(self.number_of_nodes + 1):
+				if i == j:
+					pass
+				try:
+					curr = self.node_map[i]
+				except KeyError:
+					print("node ", i, " not found!")
+					pass
+
+				try:
+					n_node = self.node_map[j]
+				except KeyError:
+					print("node ", j, " not found!")
+					pass
+				latency_matrix[i][j] = self.latency(curr, n_node)
+		self.latency_matrix = latency_matrix
 
 	# def dijkstra(self)->list:
 	# 	"""

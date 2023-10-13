@@ -25,8 +25,8 @@ def load_network(graph_data_path, save_mode):
 
 
 #initialise network
-# graph_data_path = "results/result32/0-graph_data.npy"
-graph_data_path = "results/result88/7-graph_data.npy"
+graph_data_path = "results/result39/0-graph_data.npy"
+# graph_data_path = "results/result88/7-graph_data.npy"
 # graph_data_path = "results/network_data/network1network_data.npy"
 graph_data= load_network(graph_data_path, 0)
 
@@ -103,7 +103,6 @@ while G.number_of_nodes() > 0.1*n:
 
 		# print(i, path)
 		while len(path) != 0:
-
 			next = net.node_map[path.pop()]
 			rnd_latency+=(net.latency(curr,next))
 			trns=curr.energy_for_transmission(k, next.dist(curr))

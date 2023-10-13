@@ -6,7 +6,7 @@ import numpy as np
 
 class DIJKSTRA:
 	def __init__(self):
-		self.net = network()
+		self.net = network(500, 500, 400, 0, 0)
 		self.graph_data = {}
 		self.sink = node(0,0,0)
 		self.k = 0
@@ -20,7 +20,7 @@ class DIJKSTRA:
 		self.energy_for_reception = 0
 		self.rounds = 0
 		self.latency_history = []
-		
+
 		pass
 
 	def load_network(self, graph_data_path, save_mode):

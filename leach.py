@@ -10,8 +10,8 @@ p_gen = 0	#	messages generated
 energy_consumed=0
 #	setting network parameters: distribution parameters, packet length,
 # 	transmission_rate and speed_of_transmission
-net.initialise_nodes_fixed(1, 0.4)
-net.set_parameters(2000, 200, 2000, 3*1e8, 50)
+net.initialise_nodes_fixed(1, 0)
+net.set_parameters(2000, 8, 2000, 3*1e8, 50)
 
 #	setting node initial_eneregy and node critical_energy to function
 net.show_network()
