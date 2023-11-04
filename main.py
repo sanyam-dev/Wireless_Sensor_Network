@@ -69,18 +69,20 @@ if __name__ == '__main__':
 			print("round : ", done)
 			action, prob, val = agent.choose_action(observation_flatten)
 			# observation_, reward, done, info = env.step(action)
-			observation_, reward = env1.step(action)											## commment later
+			observation_, reward = env1.step(action)										## commment later
 			rnd_his.append([env1.acc, env1.apl, round(env1.acc/env1.apl, 4)])
-			n_steps += 1
-			score += reward
-			done += 1																			## comment later
 			agent.remember(observation_, action, prob, val, reward, done)
+			agent.learn()
+			if reward == -10:
+				continue
 			if n_steps % N == 0:
 				agent.learn()
 				learn_iters += 1
 			observation_flatten = observation_
 			print("-------")
-		agent.learn()
+			done += 1
+			n_steps += 1
+			score += reward																	## comment later
 		write_history(path, rnd_his, i)
 		score_history.append(score)
 		avg_score = np.mean(score_history[-100:])

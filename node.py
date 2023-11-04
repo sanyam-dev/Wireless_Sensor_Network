@@ -24,7 +24,7 @@ class node:
 		self.queue_param=queue_param
 
 
-	def	dist(self, Node)	-> float:
+	def	dist(self, Node)-> float:
 		"""
 		distance of node from reference node
 
@@ -81,7 +81,7 @@ class node:
 		"""
 		self.role = 0 #	not a head
 		self.times_elected = 0
-		self.last_head_rnd = -1
+		self.last_head_rnd = -1e5
 		self.clusterID = 0
 		self.dist_to_head = 1e12
 		self.children_clusters = list()

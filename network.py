@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 import heapq as pq
 import networkx as nx
 import numpy as np
+import scipy.io
+import os
+import seaborn as sb
 
 class network:
 	"""
@@ -25,9 +28,10 @@ class network:
 
 		# self.node_map = {int: node.}
 		self.node_map = {}
-		sink = node(0, base_x, base_y,0,0)
+		sink = node(base_x, base_y,0,0,0)
 		sink.node_energy_setup(5*1e9, -5*1e9)
-		self.sink = sink
+
+		self.sink:node = sink
 		self.radio_distance = 0
 		self.graph = [[0 for _ in range(self.number_of_nodes + 1)] for _ in range(self.number_of_nodes + 1)]
 
@@ -242,6 +246,30 @@ class network:
 	  				edge_color = e_color, with_labels = True, font_color = "green")
 		plt.show()
 
+	def show_cluster(self,labels,k, dead_nodes):
+		G = self.nxg
+		pos = nx.get_node_attributes(G, 'pos')
+		e = G.edges()
+		color_map = [[random.uniform(0,1),random.uniform(0,1),random.uniform(0,1)] for _ in range(k)]
+		n_color = []
+		for node in G:
+			if node in dead_nodes:
+				try:
+					G.remove_node(node)
+				except nx.NetworkXError:
+					pass
+			if node == 0:
+				n_color.append('red')
+			else:
+				n_color.append(color_map[labels[node-1]])
+		e_color =  [G[u][v]['color'] for u,v in e]
+		print("graph plotted!")
+		plt.figure(2, figsize=(12, 8))
+		nx.draw(G, pos, node_color = n_color, node_size = 60,
+	  				edge_color = e_color, with_labels = True, font_color = "green")
+		plt.show()
+		return labels
+
 	def set_nxg(self):
 		G = nx.Graph()
 		mp = self.node_map
@@ -284,6 +312,7 @@ class network:
 		self.acc = round(nx.average_clustering(G), 3)
 		self.nxg = G
 		return G
+
 
 	def findShortestPath(self, curr:node):
 		"""
@@ -450,6 +479,45 @@ class network:
 					pass
 				latency_matrix[i][j] = self.latency(curr, n_node)
 		self.latency_matrix = latency_matrix
+
+	def calculate_dist(self):
+		dist_map = [[0 for _ in range(self.number_of_nodes + 2)] for _ in range(self.number_of_nodes + 2)]
+		for Node in self.node_list:
+			for curr in self.node_list:
+				dist_map[Node.id][curr.id] = Node.dist(curr)
+
+		self.distance_matrix = dist_map
+		return dist_map
+
+	def save_network_performance(self, path, filename, lifetime, energy, throughput, latency):
+		data = {
+			'lifetime': int(lifetime),
+			'energy':  list(energy),
+			'throughput': list(throughput),
+			'latency' : list(latency),
+		}
+		failed = 0
+		try:
+			np.save(path + "/"  + filename+ "-performance.npy", data)
+			scipy.io.savemat(path + "/" + filename + "-performance.mat", {data: data})
+			print("saved!")
+		except FileNotFoundError:
+			os.makedirs(path)
+			np.save(path + "/"  + filename+ "-performance.npy")
+			scipy.io.savemat(path + "/" + filename + "-performance.mat", {data: data})
+			print("saved!")
+		except:
+			failed = 1
+			print("failed!")
+
+		if failed == 1:
+			return
+
+	# def make_cluster(self, labels_path, k):
+	# 	labels = np.load(labels_path, allow_pickle=True).items()
+	# 	for node in self.nxg.nodes:
+
+
 
 	# def dijkstra(self)->list:
 	# 	"""

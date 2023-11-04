@@ -13,8 +13,8 @@ class env:
 		self.net.load_network_topology("results/network_data/network1network_data.npy")
 		self.initial_net = self.net
 		self.initial_graph = self.net.get_graph()
-		self.action_space = self.set_action_space()
-		# self.action_space = self.set_action_space_server()
+		# self.action_space = self.set_action_space()
+		self.action_space = self.set_action_space_server()
 		self.action_space_n = len(self.action_space)
 		self.edges_added = []
 		self.action_added = []
@@ -108,7 +108,7 @@ class env:
 
 	def get_reward(self, edge_repeat):
 		if(edge_repeat == 1):
-			return -1
+			return -10
 		acc = self.acc
 		apl = self.apl
 		#Hyper-parameters
