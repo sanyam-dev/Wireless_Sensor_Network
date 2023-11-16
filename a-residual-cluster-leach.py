@@ -3,18 +3,6 @@ from node import node
 import random
 import numpy as np
 
-# paths
-energy_path = "./results/performance/res-leach/net1/energy-path"
-latency_path = "./results/performance/res-leach/net1/latency-path"
-throughput_path = "./results/performance/res=leach/net1/throughput-path"
-lifetime_path = "./results/performance/res=leach/net1/lifetime-path"
-# best, worst
-lt = [-1e9, 1e9]
-en = [-1e9, 1e9]
-lat = [-1e9, 1e9]
-tr = [-1e9, 1e9]
-
-
 
 
 path = "results/network_data/network1network_data.npy"
@@ -161,34 +149,4 @@ avg_lat = round(sum(latency_per_round)/rnds,3)
 t_p = [i[2] for i in throughput_per_round]
 avg_throughput = round(sum(t_p)/rnds,3)
 
-if lt[0] < rnds:
-	lt[0] = rnds
-	net.save_network_performance(lifetime_path, "best-lifetime", rnds, energy_per_round, throughput_per_round, latency_per_round)
-if lt[1] > rnds:
-	lt[1] = rnds
-	net.save_network_performance(lifetime_path, "worst-lifetime", rnds, energy_per_round, throughput_per_round,latency_per_round )
-if en[0] < avg_en:
-	en[0] = avg_en
-	net.save_network_performance(energy_path, "best-energy", rnds, energy_per_round, throughput_per_round, latency_per_round)
-if en[1] > avg_en:
-	en[1] = avg_en
-	net.save_network_performance(energy_path, "worst-energy", rnds, energy_per_round, throughput_per_round, latency_per_round)
-if lat[0] < avg_lat:
-	lat[0] = avg_lat
-	net.save_network_performance(latency_path, "best-latency", rnds, energy_per_round, throughput_per_round, latency_per_round)
-if lat[1] > avg_lat:
-	lat[1] = avg_lat
-	net.save_network_performance(latency_path, "worst-latency", rnds, energy_per_round, throughput_per_round, latency_per_round)
-if tr[0] < avg_throughput:
-	tr[0] = avg_throughput
-	net.save_network_performance(throughput_path, "best-throughput", rnds, energy_per_round, throughput_per_round, latency_per_round)
-if tr[1] > avg_throughput:
-	tr[1] = avg_throughput
-	net.save_network_performance(throughput_path, "worst-throughput", rnds, energy_per_round, throughput_per_round, latency_per_round)
-
 print("lifetime", rnds)
-
-print("best lifetime: ", lt[0], " worst lifetime: ", lt[1])
-print("best energy: ", en[0], " worst energy: ", en[1])
-print("best latency: ", lat[0], " worst latency: ", lat[1])
-print("best throughput: ", tr[0], " worst throughput: ", tr[1])
