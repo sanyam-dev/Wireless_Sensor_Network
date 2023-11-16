@@ -6,7 +6,7 @@ net = network(500, 500, 400, 0, 0)
 # path = "results/result16/9-graph_data.npy"
 path = "results/result93/3-graph_data.npy"
 
-gd = net.load_network(path,0)
+gd = net.load_network(path)
 for Node in net.node_list:
 	Node.critical_energy = 0.0
 net.packet_length = 8
