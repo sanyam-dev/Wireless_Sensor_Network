@@ -10,29 +10,11 @@ net = network(500, 500, 400, 0, 0)
 # path = "results/network_data/network1network_data.npy"
 # path = "results/result93/3-graph_data.npy"
 path = "results/result16/9-graph_data.npy"
-def load_network(graph_data_path, save_mode):
-	"""
-	save_mode: 0 -> old network data
-	save_mode: 1 -> new network data
-	"""
-	if(save_mode == 0):
-		net.initialise_nodes_fixed(1, 0)
-		net.set_parameters(2000, 8, 2000, 3*1e8, 50)
-		#load graph
 
-		graph_data = np.load(graph_data_path, allow_pickle=True).item()
-	else:
-		_, _, graph_data = net.load_network_topology(graph_data_path)
-
-	for Node in net.node_list:
-		Node.critical_energy = 0.0
-
-	net.set_nxg_from_npy(graph_data)
-	net.show_graph()
-	return graph_data
-
-gd = load_network(path, 0)
-
+gd = net.load_network(path)
+for Node in net.node_list:
+	Node.critical_energy = 0.0
+net.packet_length = 8
 sink = net.sink
 dead_node = set()
 k = net.packet_length
@@ -108,4 +90,4 @@ print("Average latency : ",avg_latency)
 print("Throughput : ",s_trans/message_generated, message_generated, p_gen)
 print("Total Energy Consumed : ",energy_consumed)
 
-net.save_network_performance("results/performance","result16",rnds,energy_per_round,throughput_per_round,latency_per_round)
+net.save_network_performance("results/performance","result16-8-11",rnds,energy_per_round,throughput_per_round,latency_per_round)

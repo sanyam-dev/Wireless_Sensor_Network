@@ -76,8 +76,7 @@ for Node in net.node_list:
 	failed_itr_per_node[Node] = 0
 	ch_msg[Node] = 0
 
-while len(dead_node) < 0.9*n:
-
+while len(dead_node) < 0.9*n: 
 	message_gen = n - len(dead_node)
 	e = 0
 	l = 0

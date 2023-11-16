@@ -6,43 +6,10 @@ net = network(500, 500, 400, 0, 0)
 path = "results/network_data/network1network_data.npy"
 # path = "results/result16/9-graph_data.npy"
 # path = "results/result93/3-graph_data.npy"
-def load_network(graph_data_path, save_mode):
-	"""
-	save_mode: 0 -> old network data
-	save_mode: 1 -> new network data
-	"""
-	if(save_mode == 0):
-		net.initialise_nodes_fixed(1, 0)
-		net.set_parameters(2000, 8, 2000, 3*1e8, 50)
-		#load graph
-		graph_data = np.load(graph_data_path, allow_pickle=True).item()
-		net.set_nxg_from_npy(graph_data)
-	else:
-		_, _, graph_data = net.load_network_topology(graph_data_path)
-		net.set_nxg_from_npy(graph_data)
-		net.packet_length = 8
-
-	for Node in net.node_list:
-		Node.critical_energy = 0.0
-
-	return graph_data
-
-K_clusters=40 #no of clusters
-graph_data = load_network(path, 1)
-
-cluster_labels = np.load("./leach-cluster-label.npy", allow_pickle=True).item()
-cluster_labels = cluster_labels['data']
-
-
-cluster_labels = net.show_cluster(cluster_labels, K_clusters, set())
-clusters = [[] for _ in range(K_clusters)]
-cluster_map = {}
-
+graph_data = net.load_network(path)
+net.packet_length = 8
 for Node in net.node_list:
-	clusters[cluster_labels[Node.id - 1]].append(Node)
-	cluster_map[Node] = cluster_labels[Node.id - 1]
-
-print(len(clusters[0]))
+	Node.critical_energy = 0
 
 sink = net.sink
 dead_node = set()
@@ -69,6 +36,8 @@ er = sink.energy_for_reception(k)
 
 failed_itr_per_node = {}
 ch_msg = {}
+ch = {}
+clusters_count = 0
 
 #	setting distance from server in every node:
 for Node in net.node_list:
@@ -78,59 +47,61 @@ for Node in net.node_list:
 	ch_msg[Node] = 0
 
 #	LEACH specific parameters
-P = 0.025
-not_cluster_heads = set(i for i in range(1, n + 1))
+P = 0.02
 failed_iterations = 0
+clusters = []
+
+
+#Node advertisement & cluster head selection
+for Node in net.node_list:
+	Node.role = 0
+	Tn = P/(1 - P*(rnds % int(1/P)))
+	response = random.uniform(0,1)
+	if response < Tn:
+		Node.role = 1
+		clusters.append([Node])
+		ch[clusters_count] = Node
+		Node.clusterID = clusters_count
+		clusters_count += 1
+
+
+#cluster formation
+for Node in net.node_list:
+	if Node.role == 0:
+		Node.dist_to_head = 1e9
+		for i in range(clusters_count):
+			head = ch[i]
+			d = Node.dist(head)
+			if Node.dist_to_head != min(Node.dist_to_head, d):
+				Node.dist_to_head = d
+				Node.clusterID = i
+		clusters[Node.clusterID].append(Node)
 
 #	main loop
-rnd_latency=0
 while len(dead_node) < 0.9*net.number_of_nodes:
 	message_gen = net.number_of_nodes - len(dead_node)
+	rnd_latency=0
 	l =0
 	e = 0
 	ch_count = 0
-	for Node in net.node_list:
-		Node.role = 0
-		if Node in dead_node:
-			continue
-		Tn = 0
-		
-		if(rnds - Node.last_head_rnd > int(1/P)):
-			Tn = P/(1 - P*(rnds % int(1/P)))
-			# print("Tn", Tn)
-			response = round(random.uniform(0,1), 3)
-			if response < Tn:
-				Node.role = 1
-				try:
-					clusters[ch_count].append(Node)
-				except IndexError:
-					clusters.append([Node])
-				ch_count += 1
-
+	s_trans = 0
 	print("ch_count", ch_count, message_gen)
 	print("-----")
-	for Node in net.node_list:
-		if Node in dead_node:
-			continue
-		if Node.role == 0:
-			Node.dist_to_head = 1e9
-			for i in range(len(clusters)):
-				head = clusters[i][0]
-				if Node.dist_to_head > dm[Node.id][head.id]:
-					Node.clusterID = i
-					Node.dist_to_head = dm[Node.id][head.id]
-			clusters[Node.clusterID].append(Node)
 
-	for i in range(len(clusters)):
-		head = clusters[i][0]
-		for k in range(1, len(clusters[i])):
+	for i in range(clusters_count):
+		head = ch[i]
+		for k in range(len(clusters[i])):
 			Node = clusters[i][k]
-			et = Node.energy_for_transmission(k, dm[Node.id][head.id])
-			Node.current_energy -= et
-			head.current_energy -= er
-			e += et + er
-			l += lm[Node.id][head.id]
-			ch_msg[head] += 1
+			if Node.role == 0:
+				if Node in dead_node:
+					continue
+				et = Node.energy_for_transmission(k, dm[Node.id][head.id])
+				Node.current_energy -= et
+				head.current_energy -= er
+				e += et + er
+				l += lm[Node.id][head.id]
+				ch_msg[head] += 1
+
 		et = head.energy_for_transmission(k, dm[head.id][sink.id])
 		while head.current_energy > head.critical_energy and ch_msg[head] != 0:
 			head.current_energy -= et
@@ -147,6 +118,11 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 	for Node in net.node_list:
 		if Node.current_energy < Node.critical_energy or failed_itr_per_node[Node] > 5:
 			dead_node.add(Node)
+			if Node.role == 1:
+				i = Node.clusterID
+				for x in clusters[i]:
+					dead_node.add(x)
+
 
 	print(rnds, len(dead_node), round(e, 3), round(l,3), round(s_trans/message_gen, 3))
 

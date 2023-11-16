@@ -85,8 +85,6 @@ class network:
 
 		return x, y
 
-
-
 	def set_parameters(self,dist_para, len_of_packets,
 		    transmission_rate, speed_of_transmission,
 		    radio_distance
@@ -499,19 +497,32 @@ class network:
 		failed = 0
 		try:
 			np.save(path + "/"  + filename+ "-performance.npy", data)
-			scipy.io.savemat(path + "/" + filename + "-performance.mat", {data: data})
+			# scipy.io.savemat(path + "/" + filename + "-performance.mat", {data: data})
 			print("saved!")
 		except FileNotFoundError:
 			os.makedirs(path)
-			np.save(path + "/"  + filename+ "-performance.npy")
-			scipy.io.savemat(path + "/" + filename + "-performance.mat", {data: data})
+			np.save(path + "/"  + filename+ "-performance.npy", data)
+			# scipy.io.savemat(path + "/" + filename + "-performance.mat", {data: data})
 			print("saved!")
-		except:
-			failed = 1
-			print("failed!")
 
 		if failed == 1:
 			return
+
+	def load_network(self, graph_data_path):
+		"""
+		save_mode: 0 -> old network data
+		save_mode: 1 -> new network data
+		"""
+		try:
+			self.initialise_nodes_fixed(1, 0)
+			self.set_parameters(2000, 8, 2000, 3*1e8, 50)
+			#load graph
+			graph_data = np.load(graph_data_path, allow_pickle=True).item()
+			self.set_nxg_from_npy(graph_data)
+		except KeyError:
+			_, _, graph_data = self.load_network_topology(graph_data_path)
+			self.set_nxg_from_npy(graph_data)
+		return graph_data
 
 	# def make_cluster(self, labels_path, k):
 	# 	labels = np.load(labels_path, allow_pickle=True).items()

@@ -5,28 +5,11 @@ net = network(500, 500, 400, 0, 0)
 # path = "results/network_data/network1network_data.npy"
 # path = "results/result16/9-graph_data.npy"
 path = "results/result93/3-graph_data.npy"
-def load_network(graph_data_path, save_mode):
-	"""
-	save_mode: 0 -> old network data
-	save_mode: 1 -> new network data
-	"""
-	if(save_mode == 0):
-		net.initialise_nodes_fixed(1, 0)
-		net.set_parameters(2000, 8, 2000, 3*1e8, 50)
-		#load graph
-		graph_data = np.load(graph_data_path, allow_pickle=True).item()
-		net.set_nxg_from_npy(graph_data)
-	else:
-		_, _, graph_data = net.load_network_topology(graph_data_path)
-		net.set_nxg_from_npy(graph_data)
-		net.packet_length = 8
 
-	for Node in net.node_list:
-		Node.critical_energy = 0.0
-
-	return graph_data
-
-gd = load_network(path,0)
+gd = net.load_network(path,0)
+for Node in net.node_list:
+	Node.critical_energy = 0.0
+net.packet_length = 8
 energy_consumed=0
 
 dead_node = set()

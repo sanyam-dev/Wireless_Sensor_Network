@@ -6,33 +6,15 @@ from network import *
 
 net = network(500, 500, 400, 0, 0)
 
-def load_network(graph_data_path, save_mode):
-	"""
-	save_mode: 0 -> old network data
-	save_mode: 1 -> new network data
-	"""
-	if(save_mode == 0):
-		net.initialise_nodes_fixed(1, 0)
-		net.set_parameters(2000, 8, 2000, 3*1e8, 50)
-		#load graph
-
-		graph_data = np.load(graph_data_path, allow_pickle=True).item()
-	else:
-		_, _, graph_data = net.load_network_topology(graph_data_path)
-
-	return graph_data
-
-
-
 #initialise network
 graph_data_path = "results/result39/0-graph_data.npy"
 # graph_data_path = "results/result88/7-graph_data.npy"
 # graph_data_path = "results/network_data/network1network_data.npy"
-graph_data= load_network(graph_data_path, 0)
+graph_data= net.load_network(graph_data_path)
 
 for Node in net.node_list:
 	Node.critical_energy = 0
-
+net.packet_length = 8
 
 sink = net.sink
 dead_node = set()
@@ -48,23 +30,23 @@ G = net.set_nxg_from_npy(graph_data)
 # G = net.set_nxg()
 net.show_graph()
 
-#weight function
-def weight(u, v, G):
-	try:
-		return G[u][v]['weight'] if G[u][v]['weight'] > n_map[u].current_energy else 1e9
-	except:
-		return 1e9
+# #weight function
+# def weight(u, v, G):
+# 	try:
+# 		return G[u][v]['weight'] if G[u][v]['weight'] > n_map[u].current_energy else 1e9
+# 	except:
+# 		return 1e9
 
 
-def check_path(path):
-	return True
-	# n = len(path)
-	# path_sum =0
-	# for i in range(n - 1):
-	# 	curr = path[i]
-	# 	next = path[i+1]
-	# 	path_sum += G[curr][next]['weight']
-	# return path_sum < 1e9
+# def check_path(path):
+# 	return True
+# 	# n = len(path)
+# 	# path_sum =0
+# 	# for i in range(n - 1):
+# 	# 	curr = path[i]
+# 	# 	next = path[i+1]
+# 	# 	path_sum += G[curr][next]['weight']
+# 	# return path_sum < 1e9
 
 total_latency=0
 energy_consumed=0
