@@ -1,44 +1,38 @@
 from network import network
-from node import node
 import random
 import numpy as np
 
-
-
+net = network(500, 500, 400, 0, 0)
 path = "results/network_data/network1network_data.npy"
 # path = "results/result16/9-graph_data.npy"
 # path = "results/result93/3-graph_data.npy"
-
-net = network(500, 500, 400, 0, 0)
-gd = net.load_network(path)
+graph_data = net.load_network(path,1)
 net.packet_length = 8
+for Node in net.node_list:
+	Node.critical_energy = 0
 
-for x in net.node_list:
-	x.critical_energy = 0
 sink = net.sink
+dead_node = set()
+k = net.packet_length
+rnds = 0
+n = net.number_of_nodes
+n_map = net.node_map
+
+s_trans = 0		#	successful transactions
+p_gen = 0
 
 net.calculate_latency()
 dm = net.calculate_dist()
 lm = net.latency_matrix
-k = net.packet_length
-er = sink.energy_for_reception(k)
-dead_node = set()
-rnds = 0
-total_latency = 0
-energy_consumed = 0
-s_trans = 0
-p_gen = 0
-rnd_latency = 0
-
-n = net.number_of_nodes
-prev_round_energy_consumed =0
 energy_per_round = []
 latency_per_round = []
 throughput_per_round = []
+er = sink.energy_for_reception(k)
 
 failed_itr_per_node = {}
 ch_msg = {}
 ch = {}
+clusters_count = 0
 
 #	setting distance from server in every node:
 for Node in net.node_list:
@@ -48,105 +42,127 @@ for Node in net.node_list:
 	ch_msg[Node] = 0
 
 #	LEACH specific parameters
-P = 0.04
+P = 0.01
 failed_iterations = 0
 clusters = []
 
+
 #Node advertisement & cluster head selection
-cluster_count = 0
 for Node in net.node_list:
 	Node.role = 0
 	Tn = P/(1 - P*(rnds % int(1/P)))
 	response = random.uniform(0,1)
 	if response < Tn:
 		Node.role = 1
-		Node.clusterID = cluster_count
-		ch[cluster_count] = Node
-		clusters.append([Node])
-		cluster_count += 1
+		Node.clusterID = clusters_count
+		clusters.append({Node})
+		ch[clusters_count] = Node
+		clusters_count += 1
+
 
 #cluster formation
 for Node in net.node_list:
 	if Node.role == 0:
 		Node.dist_to_head = 1e9
-		for iiii in range(cluster_count):
-			head = ch[iiii]
+
+		for i in range(clusters_count):
+			head = ch[i]
 			d = Node.dist(head)
 			if Node.dist_to_head != min(Node.dist_to_head, d):
 				Node.dist_to_head = d
-				Node.clusterID = iiii
-		try:
-			clusters[Node.clusterID].append(Node)
-		except IndexError:
-			print("error ", len(clusters) , cluster_count, iiii)
-			quit()
+				Node.clusterID = i
+
+		# if Node.dist_to_head <= net.radio_distance:
+		clusters[Node.clusterID].add(Node)
+		# else:
+		# 	dead_node.add(Node)
+
+nodes_not_participating = len(dead_node)
+print(nodes_not_participating, len(net.node_list))
+#	main loop
 
 
+while len(dead_node) < 0.9*net.number_of_nodes:
 
-while len(dead_node) < 0.9*n:
-	message_gen = n - len(dead_node)
-	l = 0
-	e = 0
-	rnd_latency = 0
-	ch_count = 0
+	message_gen = net.number_of_nodes - len(dead_node)
+	l =0
+	e_residual = 0
 	s_trans = 0
 
-	for i in range(cluster_count):
+	for i in range(clusters_count):
 		head = ch[i]
-		ch_msg[head] = 1
-		if head in dead_node:
-			continue
-		for k in range(len(clusters[i])):
-			Node = clusters[i][k]
-			if Node.role == 0:
-				if Node in dead_node:
-					continue
-				et = Node.energy_for_transmission(k, dm[Node.id][head.id])
-				Node.current_energy -= et
+		for member in clusters[i]:
+			if member.role == 0:
+				et = member.energy_for_transmission(k, dm[member.id][head.id])
+				member.current_energy -= et
 				head.current_energy -= er
-				e += et + er
-				l += lm[Node.id][head.id]
+				l += lm[member.id][head.id]
 				ch_msg[head] += 1
 
 		et = head.energy_for_transmission(k, dm[head.id][sink.id])
-		while head.current_energy > head.critical_energy and ch_msg[head] != 0:
-			head.current_energy -= et
-			e += et + er
-			l += lm[head.id][sink.id]
-			s_trans += 1
-			ch_msg[head] -= 1
+		head_available_energy = head.current_energy - head.critical_energy
+		number_of_transmittable_message = head_available_energy // et
+		head_message_transmitted = min(number_of_transmittable_message, ch_msg[head])
+		head.current_energy -= (head_message_transmitted * et)
+		l += (lm[head.id][sink.id] * head_message_transmitted)
+		ch_msg[head] = 0
+		s_trans += head_message_transmitted
 
-	energy_per_round.append(e)
-	latency_per_round.append(l)
-	throughput_per_round.append([message_gen, s_trans, round(s_trans/message_gen, 3)])
-	rnds += 1
+		#since we are not re-electing heads in this method
+		dead_clusters = []
+		if head.current_energy < et:
+			if head.current_energy < head.critical_energy:
+				head.id = 0
+				dead_node.add(head)
+
+			max_residual_energy = -1e9
+			h_node = -1
+			for member in clusters[i]:
+				if member not in dead_node and max(max_residual_energy, member.current_energy) == member.current_energy:
+					h_node = member.id
+			if h_node == -1:
+				dead_clusters.append(clusters[i])
+				for member in clusters[i]:
+					dead_node.add(member)
+			else:
+				ch[i] = net.node_map[h_node]
+				ch[i].role = 1
+
+
+	#if cluster head is dead, the whole cluster dies
+	#therefore, we pop the cluster & put the enti
+	for i in range(clusters_count):
+		head = ch[i]
+		if head in dead_node:
+			dead_clusters.append(clusters[i])
+			for member in clusters[i]:
+				dead_node.add(member)
+
+	for dead_cluster in dead_clusters:
+		clusters.remove(dead_cluster)
+
+	clusters_count -= len(dead_clusters)
 
 	for Node in net.node_list:
-		if Node.current_energy < Node.critical_energy or failed_itr_per_node[Node] > 5:
+		e_residual += max(Node.current_energy, Node.critical_energy)
+		if Node.current_energy < Node.critical_energy or failed_itr_per_node[Node] > 1:
 			dead_node.add(Node)
 
-	for Node in dead_node:
-		if Node.role == 1:
-			cluster = clusters[Node.clusterID]
-			# Node with max energy left becomes cluster head
-			max_energy_left = -1e9
-			node_id = -1
-			for member in cluster:
-				if member in dead_node:
-					continue
-				if max_energy_left != max(max_energy_left, member.current_energy):
-					max_energy_left = member.current_energy
-					node_id = member.id
-			if node_id == -1:
-				continue
-			ch[Node.clusterID] = net.node_map[node_id]
-
-	print(rnds, len(dead_node), round(e, 3), round(l,3), round(s_trans/message_gen, 3))
+	energy_per_round.append(e_residual)
+	latency_per_round.append(l)
+	throughput_per_round.append([message_gen, s_trans, round(s_trans/message_gen, 3)])
+	if round(s_trans/message_gen, 3) > 1:
+		fake = "YES"
+	else:
+		fake = "NO"
+	print(rnds, net.number_of_nodes - len(dead_node), e_residual, l, round(s_trans/message_gen, 3), fake )
+	rnds += 1
+	message_gen = 0
+	s_trans = 0
+	l = 0
+	e_residual = 0
 
 
-avg_en = round(sum(energy_per_round)/rnds,3)
-avg_lat = round(sum(latency_per_round)/rnds,3)
-t_p = [i[2] for i in throughput_per_round]
-avg_throughput = round(sum(t_p)/rnds,3)
-
-print("lifetime", rnds)
+save_path = "results/performance/residual-leach/P-" + str(P) + "/"
+net.save_network_performance(save_path, str(100), rnds, energy_per_round, throughput_per_round, latency_per_round)
+print("lifetime", rnds, nodes_not_participating)
