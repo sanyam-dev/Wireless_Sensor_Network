@@ -3,7 +3,6 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 import numpy as np
-import pickle
 
 class env:
 	def __init__(self) -> None:
@@ -122,7 +121,6 @@ class env:
 	def get_done(self):
 		#	node energy = 0
 		pass
-
 
 	def step(self, action):
 		li = self.action_space[action]
