@@ -1,6 +1,6 @@
 from node import *
 from network import *
-
+import networkx as nx
 # net = network(500, 500, 400, 0, 0)
 # net.initialise_nodes_fixed(1, 0.4)
 # net.set_parameters(2000, 200, 2000, 3*1e8, 50)
@@ -11,83 +11,85 @@ net = network(500, 500, 400, 0, 0)
 # path = "results/result93/3-graph_data.npy"
 path = "results/result16/9-graph_data.npy"
 
-gd = net.load_network(path)
+gd = net.load_network(path, 0)
+e = 0
 for Node in net.node_list:
 	Node.critical_energy = 0.0
+	e += Node.current_energy
+
 net.packet_length = 8
 sink = net.sink
 dead_node = set()
 k = net.packet_length
 rnds = 0
+
+er = sink.energy_for_reception(k)
 n = net.number_of_nodes
 n_map = net.node_map
-
-total_latency=0
-energy_consumed=0
-s_trans = 0		#	successful transactions
-p_gen = 0
-rnd_latency=0
-
 net.calculate_latency()
 lm = net.latency_matrix
-prev_round_energy_consumed = 0
-energy_per_round = []
+dm = net.calculate_dist()
+energy_per_round = [e]
 latency_per_round = []
 throughput_per_round = []
+total_latency = 0
 
+sensitive_nodes = set([1,2,4])
 while len(dead_node) < 0.9*n:
-
 	message_generated = n - len(dead_node)
-	p_gen = 0
-	for Node in net.node_list:
-		if Node in dead_node:
-			continue
-		p_gen += 1
-		curr = Node
-		path = net.findShortestPath(curr)
-		# print(i, path)
-		while len(path) != 0:
-			next = net.node_map[path.pop()]
-			# rnd_latency+=(net.latency(curr,next))
-			rnd_latency += lm[curr.id][next.id]
-			trns=curr.energy_for_transmission(k, next.dist(curr))
-			curr.current_energy -= trns
-			recep=next.energy_for_reception(k)
-			next.current_energy -= recep
-			energy_consumed+=recep
-			curr = next
+	e = 0
+	l = 0
+	s_trans = 0
 
-		snk=curr.energy_for_transmission(k, curr.dist(net.sink))
-		if curr.current_energy > snk:
-			curr.current_energy -= snk
-			rnd_latency += lm[curr.id][sink.id]
-			energy_consumed += snk
+	for Node in net.node_list:
+		if Node not in dead_node and Node not in sensitive_nodes:
+			path = nx.shortest_path(net.nxg, 0, Node.id)
+			path.reverse()
+			curr = net.node_map[path.pop()]
+			if len(path) == 0:
+				et = Node.energy_for_transmission(k, dm[Node.id][sink.id])
+				if et > Node.current_energy:
+					dead_node.add(Node)
+				else:
+					Node.current_energy -= et
+					s_trans += 1
+					continue
+			while len(path) != 0:
+				next = net.node_map[path.pop()]
+				l += lm[curr.id][next.id]
+				curr.current_energy -= curr.energy_for_transmission(k, next.dist(curr))
+				next.current_energy -= er
+				curr = next
 			s_trans += 1
-		elif curr == Node:
-			dead_node.add(Node)
 
-	print("----")
-	latency_per_round.append(rnd_latency)
-	throughput_per_round.append([message_generated, s_trans, p_gen, round(s_trans/message_generated, 2)])
-	energy_per_round.append(energy_consumed - prev_round_energy_consumed)
-	prev_round_energy_consumed = energy_consumed
-	total_latency+=rnd_latency
-	rnd_latency=0
-	rnds += 1
 	for Node in net.node_list:
-		if Node.current_energy < Node.critical_energy:
+		e += max(Node.current_energy, Node.critical_energy)
+		if Node.current_energy <= Node.critical_energy:
 			dead_node.add(Node)
 
-	print(rnds, len(dead_node))
+	latency_per_round.append(l)
+	energy_per_round.append(e)
+	throughput_per_round.append([message_generated, s_trans, round(s_trans/message_generated, 3)])
+
+	print("----")
+	print(rnds, len(dead_node), e, round(l,3), round(s_trans/message_generated, 3))
+	total_latency+= l
+	e = 0
+	l = 0
+	s_trans = 0
+	rnds += 1
 	print("----")
 
-total_latency+=rnd_latency
+total_latency+= l
+
+avg_latency= total_latency/rnds
+print(rnds)
+
+total_latency+= l
 
 avg_latency= total_latency/rnds
 print(rnds)
 
 print("Average latency : ",avg_latency)
-print("Throughput : ",s_trans/message_generated, message_generated, p_gen)
-print("Total Energy Consumed : ",energy_consumed)
-
-net.save_network_performance("results/performance","result16-8-11",rnds,energy_per_round,throughput_per_round,latency_per_round)
+print("Throughput : ",s_trans/message_generated)
+net.save_network_performance("results/performance/multi-hop/small-world/","0",rnds,energy_per_round,throughput_per_round,latency_per_round)
