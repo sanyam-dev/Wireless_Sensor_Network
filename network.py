@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 import heapq as pq
 import networkx as nx
 import numpy as np
-import scipy.io
 import os
 import seaborn as sb
 
@@ -323,7 +322,7 @@ class network:
 		adj = {int: list}
 		n = self.number_of_nodes
 		r = self.radio_distance
-
+		self.calculate_dist()
 		for i in range(n + 1):
 			x = self.node_map[i]
 			adj[i] = []
@@ -333,7 +332,7 @@ class network:
 				y = self.node_map[j]
 				if not y.is_functional():
 					continue
-				d = x.dist(y)
+				d = self.distance_matrix[x.id][y.id]
 				adj[j] = []
 				if d < r and y.current_energy > y.energy_for_reception(self.packet_length) or self.nxg.has_edge(i, j):
 					adj[i].append([j, d])
@@ -508,18 +507,18 @@ class network:
 		if failed == 1:
 			return
 
-	def load_network(self, graph_data_path):
+	def load_network(self, graph_data_path, mode):
 		"""
 		save_mode: 0 -> old network data
 		save_mode: 1 -> new network data
 		"""
-		try:
+		if mode == 0:
 			self.initialise_nodes_fixed(1, 0)
 			self.set_parameters(2000, 8, 2000, 3*1e8, 50)
 			#load graph
 			graph_data = np.load(graph_data_path, allow_pickle=True).item()
 			self.set_nxg_from_npy(graph_data)
-		except KeyError:
+		else:
 			_, _, graph_data = self.load_network_topology(graph_data_path)
 			self.set_nxg_from_npy(graph_data)
 		return graph_data
