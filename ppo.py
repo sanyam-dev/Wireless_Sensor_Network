@@ -52,7 +52,7 @@ if __name__ == '__main__':
 
 	agent.load_models()
 	n_games = 1
-	number_of_edges = 200
+	number_of_edges = 350
 	history = []
 	print(env1.action_space_n)
 	path = dir()
@@ -74,7 +74,8 @@ if __name__ == '__main__':
 	prev_apl = env1.net.apl
 	curr_apl = env1.net.apl
 	curr_acc = env1.net.acc
-	while abs(curr_apl-prev_apl) >= abs(curr_acc - prev_acc):	#round
+	repeat_hit_cnt = 0
+	while done <= number_of_edges and  abs(curr_apl-prev_apl) >= abs(curr_acc - prev_acc) and repeat_hit_cnt < 15:	#round
 		print("round : ", done)
 		prev_acc = env1.net.acc
 		prev_apl = env1.net.apl
@@ -87,10 +88,9 @@ if __name__ == '__main__':
 		curr_apl = env1.net.apl
 		curr_acc = env1.net.acc
 		if reward == -10:
+			repeat_hit_cnt += 1
 			continue
-		if n_steps % N == 0:
-			agent.learn()
-			learn_iters += 1
+		repeat_hit_cnt = 0
 		observation_flatten = observation_
 		print("-------")
 		done += 1
@@ -116,4 +116,4 @@ write_history(path, history,-1)
 print("done")
 
 end = time.time()
-print("time of execution: ", (end-start)*10**3, "ms")
+print("time of execution: ", (end-start)*10**3/1000, "s")

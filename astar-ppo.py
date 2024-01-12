@@ -1,5 +1,4 @@
 import networkx as nx
-import pickle
 import numpy as np
 from node import *
 from network import *
@@ -56,27 +55,6 @@ energy_for_reception = n_map[1].energy_for_reception(k)
 G = net.set_nxg_from_npy(graph_data)
 # G = net.set_nxg()
 net.show_graph()
-
-
-# try:
-# 	path = list(nx.astar_path(G, 4, 0,weight= weight))
-# except:
-# 	path = list(nx.shortest_path(G, 1, 0, weight=weight))
-
-
-# print(path)
-
-# if check_path(path):
-# 	for i_id in range(len(path) - 1):
-# 		curr_node_id = path[i_id]
-# 		next_node_id = path[i_id + 1]
-# 		curr_node = n_map[curr_node_id]
-# 		next_node = n_map[next_node_id]
-# 		rnd_latency += net.latency(curr_node, next_node)
-# 		curr_node.current_energy -= G[curr_node_id][next_node_id]['weight']
-# 		next_node.current_energy -= energy_for_reception
-# 		energy_consumed += G[curr_node_id][next_node_id]['weight'] + energy_for_reception
-
 
 while G.number_of_nodes() > 0.1*n:
 

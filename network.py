@@ -6,7 +6,6 @@ import heapq as pq
 import networkx as nx
 import numpy as np
 import os
-import seaborn as sb
 
 class network:
 	"""
@@ -122,9 +121,6 @@ class network:
 		plt.ylim(-1, self.area_width)
 		plt.scatter(x,y, marker='x')
 		plt.scatter(0,0, c="red")
-		# for Node in self.node_list:
-		# 	plt.text(Node.x+.03, Node.y+.03, Node.id, fontsize = 6)
-
 		plt.show()
 
 	def get_graph(self):
@@ -230,7 +226,6 @@ class network:
 		self.graph = adj_matrix
 		return average_length
 
-
 	def show_graph(self):
 		G = self.nxg
 		pos = nx.get_node_attributes(G, 'pos')
@@ -310,7 +305,6 @@ class network:
 		self.nxg = G
 		return G
 
-
 	def findShortestPath(self, curr:node):
 		"""
 			Returns the smallest possible path from current node
@@ -378,7 +372,6 @@ class network:
 					dx = p
 					st.append(j)
 					path[i] = j
-
 		return li
 
 	def latency(self,curr:node,next:node)->int:
@@ -522,47 +515,3 @@ class network:
 			_, _, graph_data = self.load_network_topology(graph_data_path)
 			self.set_nxg_from_npy(graph_data)
 		return graph_data
-
-	# def make_cluster(self, labels_path, k):
-	# 	labels = np.load(labels_path, allow_pickle=True).items()
-	# 	for node in self.nxg.nodes:
-
-
-
-	# def dijkstra(self)->list:
-	# 	"""
-	# 		Returns a dictionary where every node
-	# 		is mapped to the list containing shortest path
-	# 		found via Dijkstra's algorithm
-	# 	"""
-	# 	path = [[0, self.node_map[i].dist(self.sink)] for i in range(self.number_of_nodes + 1)]
-	# 	unvisited_nodes = {i for i in range(self.number_of_nodes + 1)}
-	# 	G = self.network_adj_matrix()
-	# 	dist = [int(1e9) for _ in range(self.number_of_nodes + 1)]
-	# 	#	sink is the source node
-	# 	dist[0] = 0
-	# 	li = [0]
-	# 	while len(li) != 0:
-	# 		currNode = pq.heappop(li)
-	# 		if currNode not in unvisited_nodes: continue
-	# 		unvisited_nodes.remove(currNode)
-
-	# 		for n,x in G[currNode]:
-	# 			if dist[n] > dist[currNode] + x and n in unvisited_nodes:
-	# 				dist[n] = dist[currNode] + x
-	# 				path[n] = [currNode, x]
-	# 				pq.heappush(li, n)
-	# 	print(path)
-	# 	return path
-
-	# def get_apl(self):
-	# 	if self.nx_graph == None:
-	# 		self.nx_graph = self.set_nx_graph()
-	# 	apl = nx.average_shortest_path_length(self.nx_graph)
-	# 	return round(apl, 3)
-
-	# def get_acc(self):
-	# 	if self.nx_graph == None:
-	# 		self.nx_graph = self.set_nx_graph()
-	# 	acc = nx.average_clustering(self.nx_graph)
-	# 	return round(acc, 3)
