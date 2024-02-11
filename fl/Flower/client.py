@@ -6,7 +6,7 @@ from torchvision.transforms import transforms
 from torch.utils.data import DataLoader
 
 
-NUM_CLIENTS = 2
+NUM_CLIENTS = 1
 BATCH_SIZE = 32
 DEVICE = "mps"
 

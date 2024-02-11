@@ -13,7 +13,8 @@ class env:
 		self.initial_net = self.net
 		self.initial_graph = self.net.get_graph()
 		# self.action_space = self.set_action_space()
-		self.action_space = self.set_action_space_server()
+		# self.action_space = self.set_action_space_server()
+		self.action_space = self.set_action_space_dist()
 		self.action_space_n = len(self.action_space)
 		self.edges_added = []
 		self.action_added = []
@@ -26,6 +27,7 @@ class env:
 		self.latency = -1
 		self.throughput = -1
 		self.energy_consumed = -1
+
 
 	def set_nxg(self):
 		G = nx.Graph()
@@ -63,6 +65,18 @@ class env:
 		for i in range(1, n+1):
 			for j in range(i+1, n+1):
 				if self.net.graph[i][j] == 0:
+					action_space.append([mp[i], mp[j]])
+		return action_space
+
+	def set_action_space_dist(self)->list:
+		mp = self.net.node_map
+		n = self.net.number_of_nodes
+		action_space = []
+		dm = self.net.calculate_dist()
+		l = min(self.net.area_length, self.net.area_width)
+		for i in range(1, n-1):
+			for j in range(i+1, n):
+				if dm[i][j] <= 0.5*l and dm[i][j] >= 0.25*l:
 					action_space.append([mp[i], mp[j]])
 		return action_space
 

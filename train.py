@@ -30,7 +30,7 @@ def write_history(par_path, history, round):
 
 
 if __name__ == '__main__':
-	N = 5
+	N = 10
 	batch_size = 5
 	n_epochs = 5
 	alpha = 0.0003

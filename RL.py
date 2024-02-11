@@ -122,6 +122,10 @@ class Agent:
     def remember(self, state, action, probs, vals, reward, done):
         self.memory.store_memory(state, action, probs, vals, reward, done)
 
+    def set_chkpt_dir(self, path_actor, path_critic):
+       self.actor.checkpoint_file = path_actor
+       self.critic.checkpoint_file = path_critic
+
     def save_models(self):
         print('... saving models ...')
         self.actor.save_checkpoint()
