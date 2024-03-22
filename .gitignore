@@ -10,8 +10,9 @@ __pycache__/
 abc_1.py
 /test
 test.py
-/results
-/results/*
+tmp/*
+
+*.pth
 # *.png
 # /graph_data
 # graph_data/server/0-graph_data.npy
