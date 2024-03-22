@@ -9,7 +9,9 @@ import networkx as nx
 net = network(500, 500, 400, 0, 0)
 # path = "results/network_data/network1network_data.npy"
 # path = "results/result93/3-graph_data.npy"
-path = "results/result16/9-graph_data.npy"
+# path = "results/result16/9-graph_data.npy"
+parent_dir = "results/ppo/result"
+path = parent_dir + "/0-graph_data.npy"
 
 gd = net.load_network(path, 0)
 e = 0
@@ -17,7 +19,7 @@ for Node in net.node_list:
 	Node.critical_energy = 0.0
 	e += Node.current_energy
 
-net.packet_length = 8
+net.packet_length = 256
 sink = net.sink
 dead_node = set()
 k = net.packet_length
@@ -42,7 +44,8 @@ while len(dead_node) < 0.9*n:
 	s_trans = 0
 
 	for Node in net.node_list:
-		if Node not in dead_node and Node not in sensitive_nodes:
+		# if Node not in dead_node and Node not in sensitive_nodes:
+		if Node not in dead_node:
 			path = nx.shortest_path(net.nxg, 0, Node.id)
 			path.reverse()
 			curr = net.node_map[path.pop()]
@@ -71,19 +74,19 @@ while len(dead_node) < 0.9*n:
 	energy_per_round.append(e)
 	throughput_per_round.append([message_generated, s_trans, round(s_trans/message_generated, 3)])
 
-	print("----")
-	print(rnds, len(dead_node), e, round(l,3), round(s_trans/message_generated, 3))
+	# print("----")
+	# print(rnds, len(dead_node), e, round(l,3), round(s_trans/message_generated, 3))
 	total_latency+= l
 	e = 0
 	l = 0
 	s_trans = 0
 	rnds += 1
-	print("----")
+	# print("----")
 
 total_latency+= l
 
 avg_latency= total_latency/rnds
-print(rnds)
+# print(rnds)
 
 total_latency+= l
 
@@ -92,4 +95,4 @@ print(rnds)
 
 print("Average latency : ",avg_latency)
 print("Throughput : ",s_trans/message_generated)
-net.save_network_performance("results/performance/multi-hop/small-world/","0",rnds,energy_per_round,throughput_per_round,latency_per_round)
+net.save_network_performance(parent_dir + "/multihop","cl",rnds,energy_per_round,throughput_per_round,latency_per_round)

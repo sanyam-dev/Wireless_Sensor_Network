@@ -44,10 +44,10 @@ class SaveModelStrategy(fl.server.strategy.FedAvg):
 if __name__ == "__main__":
 	strategy = SaveModelStrategy(
 		fraction_fit=1.0,  # Sample 100% of available clients for training
-		fraction_evaluate=0.5,  # Sample 5% of available clients for evaluation
-		min_fit_clients=2,  # Never sample less than 10 clients for training
-		min_evaluate_clients=2,  # Never sample less than 5 clients for evaluation
-		min_available_clients=2,  # Wait until all 10 clients are available
+		fraction_evaluate=1.0,  # Sample 5% of available clients for evaluation
+		min_fit_clients=1,  # Never sample less than 10 clients for training
+		min_evaluate_clients=1,  # Never sample less than 5 clients for evaluation
+		min_available_clients=1,  # Wait until all 10 clients are available
 		evaluate_metrics_aggregation_fn=weighted_average,
 	)
 
