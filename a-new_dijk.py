@@ -7,11 +7,11 @@ import networkx as nx
 # net.set_nxg()
 
 net = network(500, 500, 400, 0, 0)
-# path = "results/network_data/network1network_data.npy"
+path = "results/network_data/network1network_data.npy"
 # path = "results/result93/3-graph_data.npy"
 # path = "results/result16/9-graph_data.npy"
-parent_dir = "results/ppo/result"
-path = parent_dir + "/0-graph_data.npy"
+parent_dir = "results/conventional/result"
+# path = parent_dir + "/0-graph_data.npy"
 
 gd = net.load_network(path, 0)
 e = 0

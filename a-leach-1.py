@@ -42,7 +42,7 @@ for Node in net.node_list:
 	ch_msg[Node] = 0
 
 #	LEACH specific parameters
-P = 0.2
+P = 0.3
 failed_iterations = 0
 clusters = []
 

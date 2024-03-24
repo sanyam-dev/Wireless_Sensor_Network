@@ -5,13 +5,13 @@ net = network(500, 500, 400, 0, 0)
 path = "results/network_data/network1network_data.npy"
 # path = "results/result16/9-graph_data.npy"
 # path = "results/result93/3-graph_data.npy"
-parent_dir = "./results/gsw-ppo/result"
-path = parent_dir + '/0-graph_data.npy'
+parent_dir = "./results/conventional/result"
+# path = parent_dir + '/0-graph_data.npy'
 
-gd = net.load_network(path, 0)
+gd = net.load_network(path, 1)
 for Node in net.node_list:
 	Node.critical_energy = 0.0
-net.packet_length = 256
+net.packet_length = 8
 
 dead_node = set()
 n = net.number_of_nodes
@@ -70,4 +70,4 @@ print("Throughput :", message_generated)
 
 print("Total Energy Consumed : ",e)
 
-net.save_network_performance(parent_dir + '/direct/', "direct-cl", rnd, energy_per_round, throughput_per_round, latency_per_round)
+net.save_network_performance(parent_dir + '/direct/', "direct-fl", rnd, energy_per_round, throughput_per_round, latency_per_round)
