@@ -1,0 +1,2 @@
+no.,acc,apl,small_worldness
+0,0.615,2.378,0.2586
