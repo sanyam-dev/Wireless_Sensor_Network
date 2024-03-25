@@ -31,8 +31,7 @@ er = sink.energy_for_reception(k)
 
 failed_itr_per_node = {}
 ch_msg = {}
-ch = {}
-clusters_count = 0
+
 
 #	setting distance from server in every node:
 for Node in net.node_list:
@@ -45,7 +44,8 @@ for Node in net.node_list:
 P = 0.01
 failed_iterations = 0
 clusters = []
-
+ch = {}
+clusters_count = 0
 
 #Node advertisement & cluster head selection
 for Node in net.node_list:
@@ -68,7 +68,7 @@ for Node in net.node_list:
 		for i in range(clusters_count):
 			head = ch[i]
 			d = Node.dist(head)
-			if Node.dist_to_head != min(Node.dist_to_head, d):
+			if Node.dist_to_head > d:
 				Node.dist_to_head = d
 				Node.clusterID = i
 
@@ -92,14 +92,14 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 	for i in range(clusters_count):
 		head = ch[i]
 		for member in clusters[i]:
-			if member.role == 0:
+			if member.role == 0:	#	what about dead members?
 				et = member.energy_for_transmission(k, dm[member.id][head.id])
 				member.current_energy -= et
 				head.current_energy -= er
 				l += lm[member.id][head.id]
 				ch_msg[head] += 1
 
-		et = head.energy_for_transmission(k, dm[head.id][sink.id])
+		et_head= head.energy_for_transmission(k, dm[head.id][sink.id])
 		head_available_energy = head.current_energy - head.critical_energy
 		number_of_transmittable_message = head_available_energy // et
 		head_message_transmitted = min(number_of_transmittable_message, ch_msg[head])
@@ -110,17 +110,17 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 
 		#since we are not re-electing heads in this method
 		dead_clusters = []
-		if head.current_energy < et:
+		if head.current_energy < et_head:
 			if head.current_energy < head.critical_energy:
-				head.id = 0
 				dead_node.add(head)
 
+			head.role = 0
 			max_residual_energy = -1e9
 			h_node = -1
 			for member in clusters[i]:
-				if member not in dead_node and max(max_residual_energy, member.current_energy) == member.current_energy:
+				if member not in dead_node and member.current_energy > et_head and member.current_energy > max_residual_energy:
 					h_node = member.id
-			if h_node == -1:
+			if h_node == -1:	#if there is no member node that can fulfill all the above conditions, kill the cluster.
 				dead_clusters.append(clusters[i])
 				for member in clusters[i]:
 					dead_node.add(member)
