@@ -6,8 +6,10 @@ net = network(500, 500, 400, 0, 0)
 path = "results/network_data/network1network_data.npy"
 # path = "results/result16/9-graph_data.npy"
 # path = "results/result93/3-graph_data.npy"
+# path = "results/gsw-ppo/result/0-graph_data.npy"
+
 graph_data = net.load_network(path,1)
-net.packet_length = 8
+net.packet_length = 256
 for Node in net.node_list:
 	Node.critical_energy = 0
 
@@ -42,7 +44,8 @@ for Node in net.node_list:
 	ch_msg[Node] = 0
 
 #	LEACH specific parameters
-P = 0.3
+P = 0.7
+
 failed_iterations = 0
 clusters = []
 
@@ -142,7 +145,7 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 		fake = "YES"
 	else:
 		fake = "NO"
-	print(rnds, net.number_of_nodes - len(dead_node), e_residual, l, round(s_trans/message_gen, 3), fake )
+	# print(rnds, net.number_of_nodes - len(dead_node), e_residual, l, round(s_trans/message_gen, 3), fake )
 	rnds += 1
 	message_gen = 0
 	s_trans = 0
@@ -150,6 +153,7 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 	e_residual = 0
 
 
-save_path = "results/performance/leach/P-" + str(P) + "/"
-net.save_network_performance(save_path, str(100), rnds, energy_per_round, throughput_per_round, latency_per_round)
+# save_path = "results/performance/leach/P-" + str(P) + "/"
+save_path = "results/conventional/result/leach/" + str(P) + "/"
+net.save_network_performance(save_path, "cl", rnds, energy_per_round, throughput_per_round, latency_per_round)
 print("lifetime", rnds, nodes_not_participating)
