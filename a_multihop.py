@@ -3,8 +3,12 @@ from networkx import NetworkXError
 
 net = network(500, 500, 400, 0, 0)
 path = "results/network_data/network1network_data.npy"
+# path = "results/result93/3-graph_data.npy"
+# path = "results/result16/9-graph_data.npy"
+parent_dir = "results/conventional/result"
+# path = parent_dir + "/0-graph_data.npy"
 
-gd = net.load_network(path, 0)
+gd = net.load_network(path, 1)
 e = 0
 for Node in net.node_list:
 	Node.critical_energy = 0.0
@@ -89,4 +93,4 @@ print(rnds)
 
 print("Average latency : ",avg_latency)
 print("Throughput : ",s_trans/message_gen)
-net.save_network_performance("results/performance/multi-hop/small-world/","0",rnds,energy_per_round,throughput_per_round,latency_per_round)
+net.save_network_performance(parent_dir + "/multi-hop","fl",rnds,energy_per_round,throughput_per_round,latency_per_round)

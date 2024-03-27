@@ -3,13 +3,13 @@ import random
 import numpy as np
 
 net = network(500, 500, 400, 0, 0)
-path = "results/network_data/network1network_data.npy"
+# path = "results/network_data/network1network_data.npy"
 # path = "results/result16/9-graph_data.npy"
 # path = "results/result93/3-graph_data.npy"
-# path = "results/gsw-ppo/result/0-graph_data.npy"
+path = "results/nsw-ppo/result/0-graph_data.npy"
 
-graph_data = net.load_network(path,1)
-net.packet_length = 256
+graph_data = net.load_network(path,0)
+net.packet_length = 8
 for Node in net.node_list:
 	Node.critical_energy = 0
 
@@ -44,7 +44,7 @@ for Node in net.node_list:
 	ch_msg[Node] = 0
 
 #	LEACH specific parameters
-P = 0.7
+P = 0.45
 
 failed_iterations = 0
 clusters = []
@@ -154,6 +154,6 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 
 
 # save_path = "results/performance/leach/P-" + str(P) + "/"
-save_path = "results/conventional/result/leach/" + str(P) + "/"
-net.save_network_performance(save_path, "cl", rnds, energy_per_round, throughput_per_round, latency_per_round)
+save_path = "results/nsw-ppo/result/leach/" + str(P) + "/"
+net.save_network_performance(save_path, "fl", rnds, energy_per_round, throughput_per_round, latency_per_round)
 print("lifetime", rnds, nodes_not_participating)
