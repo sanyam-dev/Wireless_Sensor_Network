@@ -22,7 +22,10 @@ class node:
 		self.d0 = math.sqrt(self.free_space_energy_parameter/self.multihop_energy_paramter)
 		self.processing_param=processing_param
 		self.queue_param=queue_param
-
+		self.packets_generated = 0
+		self.packets_received = 0
+		self.packets_sent = 0
+		
 
 	def	dist(self, Node)-> float:
 		"""

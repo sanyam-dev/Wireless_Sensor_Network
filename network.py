@@ -479,12 +479,13 @@ class network:
 		self.distance_matrix = dist_map
 		return dist_map
 
-	def save_network_performance(self, path, filename, lifetime, energy, throughput, latency):
+	def save_network_performance(self, path, filename, lifetime, energy, throughput, latency,livenodes):
 		data = {
 			'lifetime': int(lifetime),
 			'energy':  list(energy),
 			'throughput': list(throughput),
 			'latency' : list(latency),
+			'livenodes':list(livenodes)
 		}
 		failed = 0
 		try:

@@ -113,7 +113,7 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 
 		#since we are not re-electing heads in this method
 		if head.current_energy < et:
-			
+
 			dead_node.add(head)
 
 
