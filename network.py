@@ -180,7 +180,7 @@ class network:
 		self.graph = adj_matrix
 		return average_coefficient
 
-	def get_apl(self, adj_matrix):
+	def get_apl(self, adj_matrix): 
 		"""
 		Calculates the average path length of a graph from its adjacency matrix.
 
@@ -374,11 +374,8 @@ class network:
 					path[i] = j
 		return li
 
-	def latency(self,curr:node,next:node)->int:
-		l=0
-		l+=(self.packet_length/self.transmission_rate)
-		l+=(curr.dist(next)/self.transmission_speed)
-		return l
+	def latency(self,curr:node,next:node):
+		return ((self.packet_length/self.transmission_rate) + (curr.dist(next)/self.transmission_speed)) + 0.01 #Tqs
 
 	def save_network(self, path):
 		x_pos = [self.node_map[i].x for i in range(0, self.number_of_nodes + 1)]
@@ -453,13 +450,14 @@ class network:
 	def calculate_latency(self):
 		latency_matrix = [[0 for _ in range(self.number_of_nodes + 2)] for _ in range(self.number_of_nodes + 2)]
 		for i in range(self.number_of_nodes + 1):
+			try:
+				curr = self.node_map[i]
+			except KeyError:
+				print("node ", i, " not found!")
+				pass
+
 			for j in range(self.number_of_nodes + 1):
 				if i == j:
-					pass
-				try:
-					curr = self.node_map[i]
-				except KeyError:
-					print("node ", i, " not found!")
 					pass
 
 				try:

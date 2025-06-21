@@ -7,7 +7,7 @@ import os
 import time
 
 def dir():
-	parent_dir = "../results/ppo/"
+	parent_dir = "../network-ppo/"
 	filename = 'result'
 	path = os.path.join(parent_dir,filename)
 	try:
@@ -70,14 +70,15 @@ if __name__ == '__main__':
 	score = 0
 	rnd_his = []
 	rnd_his.append([env1.acc, env1.apl, round(env1.acc/env1.apl, 4)])
-	prev_acc = env1.net.acc
-	prev_apl = env1.net.apl
-	curr_apl = env1.net.apl
-	curr_acc = env1.net.acc
+	prev_acc = 0
+	prev_apl = 0
+	curr_apl = env1.apl
+	curr_acc = env1.acc
+	print(curr_acc, curr_apl)
 	repeat_hit_cnt = 0
-	while done <= number_of_edges and  abs(curr_apl-prev_apl) >= abs(curr_acc - prev_acc) :	#round
+	while abs(curr_apl-prev_apl) >= abs(curr_acc - prev_acc) :	#round
 		print("round : ", done)
-		prev_acc = env1.net.acc
+		prev_acc = env1.acc
 		prev_apl = env1.net.apl
 		action, prob, val = agent.choose_action(observation_flatten)
 		# observation_, reward, done, info = env.step(action)

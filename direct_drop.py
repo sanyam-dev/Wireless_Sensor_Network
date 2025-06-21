@@ -14,16 +14,17 @@ def node2NodeTransmission(curr, next):
 	received_packets = max(transferred_packets - dropped_p, 0)
 	next.current_energy -= (received_packets*er)
 	next.packets_this_rnd += received_packets
-	return received_packets*lm[curr.id][next.id]
+	return lm[curr.id][next.id]
 
 net = network(500, 500, 400, 0, 0)
 path = "results/network_data/network1network_data.npy"
+srtr = "fl-conv"
 # path = "results/nsw-ppo/result/0-graph_data.npy"
 gd=net.load_network(path,1)
 
 
-net.packet_length=128
-packets=100
+net.packet_length=8
+packets=10
 
 for n in net.node_list:
 	n.curent_energy= 40
@@ -75,4 +76,4 @@ while len(dead_nodes) < 0.9*N:
 
 print(rnds)
 parent_dir='final-meet/'
-net.save_network_performance(parent_dir + "/direct-drop","cl-conv",rnds,e_r,th_r,l_r,live_nodes)
+net.save_network_performance(parent_dir + "/direct-drop",srtr,rnds,e_r,th_r,l_r,live_nodes)

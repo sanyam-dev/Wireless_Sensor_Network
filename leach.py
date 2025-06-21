@@ -17,7 +17,7 @@ def node2NodeTransmission(curr, next):
 	received_packets = max(transferred_packets - dropped_p, 0)
 	next.current_energy -= (received_packets*er)
 	next.packets_this_rnd += received_packets
-	return received_packets*lm[curr.id][next.id]
+	return lm[curr.id][next.id]
 
 def add_dead_node(c):
 	if c.current_energy < c.critical_energy:
@@ -30,15 +30,16 @@ def add_dead_node(c):
 
 
 net = network(500, 500, 400, 0, 0)
-path = "results/ppo/result/0-graph_data.npy"
-# path = "results/network_data/network1network_data.npy"
+# path = "results/ppo/result/0-graph_data.npy"
+srtr = "cl-conv"
+path = "results/network_data/network1network_data.npy"
 parent_dir = "results/fsw-ppo/"
-graph_data = net.load_network(path,0)
+graph_data = net.load_network(path,1)
 net.show_graph()
 
 #initial residual energy:
-net.packet_length=128
-packets = 100
+net.packet_length= 16
+packets = 10
 
 for n in net.node_list:
 	n.current_energy = 40
@@ -143,4 +144,4 @@ while len(dead_nodes) < 0.9*N:
 
 print(rnds)
 parent_dir='final-meet/'
-net.save_network_performance(parent_dir + "/leach-0.35-drop","cl-ppo",rnds,e_rounds,th_rounds,l_rounds,live_nodes)
+net.save_network_performance(parent_dir + "/leach-0.35-drop",srtr,rnds,e_rounds,th_rounds,l_rounds,live_nodes)

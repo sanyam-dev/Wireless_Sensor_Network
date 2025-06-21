@@ -1,9 +1,7 @@
 from network import *
 import math
 from numpy.random import normal
-from networkx.exception import NetworkXNoPath
 
-hist = []
 def drop_packs(trasn_packs):
 	return max(math.floor(normal(trasn_packs*0.07, 2)),0)
 
@@ -12,11 +10,10 @@ def node2NodeTransmission(curr, next):
 	transferred_packets = min(curr.packets_this_rnd, math.ceil(curr.current_energy/et))
 	curr.current_energy -= (transferred_packets*et)
 	dropped_p = drop_packs(transferred_packets)
-	hist.append([transferred_packets, dropped_p])
 	received_packets = max(transferred_packets - dropped_p, 0)
 	next.current_energy -= (received_packets*er)
 	next.packets_this_rnd += received_packets
-	return received_packets*lm[curr.id][next.id]
+	return lm[curr.id][next.id]
 
 def add_dead_node(c):
 	if c.current_energy < c.critical_energy:
@@ -28,16 +25,17 @@ def add_dead_node(c):
 	return c.current_energy < c.critical_energy
 
 net = network(500, 500, 400, 0, 0)
-path = "results/gsw-ppo/result/0-graph_data.npy"
+# path = "results/ppo/result/0-graph_data.npy"
+path = "results/results_till_now/result16/9-graph_data.npy"
+srtr = "cl-ppo"
 # path = "results/network_data/network1network_data.npy"
-parent_dir = "results/fsw-ppo/"
 graph_data = net.load_network(path, 0)
-net.show_graph()
+# net.show_graph()
 #initialises node
 
 #initial residual energy:
-net.packet_length=128
-packets = 50
+net.packet_length= 8
+packets = 10
 
 for n in net.node_list:
 	n.current_energy = 40
@@ -49,14 +47,14 @@ dead_nodes = set()
 N = net.number_of_nodes
 k = net.packet_length
 sink = net.sink
-net.calculate_latency()
 er = sink.energy_for_reception(k)
+net.calculate_latency()
 lm=net.latency_matrix
 dm=net.calculate_dist()
 e_r = []
 l_r= []
 th_r= []
-live_nodes = []
+live_nodes = [400]
 rnds=0
 
 while len(dead_nodes) < 0.9*N:
@@ -93,5 +91,5 @@ while len(dead_nodes) < 0.9*N:
 	rnds += 1
 
 print(rnds)
-parent_dir='final-meet/'
-net.save_network_performance(parent_dir + "/multihop-drop","fl-gsw",rnds,e_r,th_r,l_r,live_nodes)
+parent_dir='final-meet-1/'
+net.save_network_performance(parent_dir + "/multihop-drop",srtr,rnds,e_r,th_r,l_r,live_nodes)

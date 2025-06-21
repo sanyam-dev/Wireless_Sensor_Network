@@ -25,7 +25,7 @@ class node:
 		self.queue_param=queue_param
 		self.packets = 0
 		self.packets_this_rnd=0
-		
+
 	def	dist(self, Node)-> float:
 		"""
 		distance of node from reference node
