@@ -72,8 +72,7 @@ if __name__ == '__main__':
 			prev_apl = env1.net.apl
 			print("round : ", done)
 			action, prob, val = agent.choose_action(observation_flatten)
-			# observation_, reward, done, info = env.step(action)
-			observation_, reward = env1.step(action)										## commment later
+			observation_, reward, _, _ = env1.step(action)
 			rnd_his.append([env1.acc, env1.apl, round(env1.acc/env1.apl, 4)])
 			agent.remember(observation_, action, prob, val, reward, done)
 			agent.learn()

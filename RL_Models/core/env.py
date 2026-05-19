@@ -3,6 +3,7 @@ import networkx as nx
 import matplotlib.pyplot as plt
 import os
 import numpy as np
+import copy
 
 class env:
 	def __init__(self) -> None:
@@ -21,7 +22,7 @@ class env:
 		self.obs_space = self.initial_graph
 		self.graph = self.obs_space
 		self.nxg = self.set_nxg()
-		self.init_nxg = self.nxg
+		self.init_nxg = copy.deepcopy(self.nxg)
 		# self.apl = 9999
 		# self.acc = 0
 		self.latency = -1
@@ -110,60 +111,54 @@ class env:
 		return mat
 
 	def reset(self):
-		self.net = self.initial_net
-		# self.graph = self.net.get_graph()
-		self.obs_space = self.initial_graph
-		mat = self.obs_space
+		self.net = copy.deepcopy(self.initial_net)
+		self.obs_space = copy.deepcopy(self.initial_graph)
 		self.edges_added = []
+		self.action_added = []
+		self.action_space = self.set_action_space()
+		self.action_space_n = len(self.action_space)
 		self.nxg = self.set_nxg()
+		self.init_nxg = copy.deepcopy(self.nxg)
+		mat = self.obs_space
 		mat_flatten = [num for sublist in mat for num in sublist]
 		return mat_flatten
 
 	def get_reward(self, edge_repeat):
-		if(edge_repeat == 1):
+		if edge_repeat == 1:
 			return -10
 		acc = self.acc
 		apl = self.apl
-		#Hyper-parameters
 		w1 = 1
 		w2 = 1
 		reward = w1*acc + w2*(1/apl)
 		reward = round(reward, 3)
 		return reward
 
-
 	def get_done(self):
-		#	node energy = 0
-		pass
+		if self.action_space_n == 0:
+			return True
+		return False
 
 	def step(self, action):
 		li = self.action_space[action]
 		n1 = li[0].id
 		n2 = li[1].id
 		mat = self.obs_space
-		reward = 0
-		edge_repeat = 0
-		if [n1, n2] in self.edges_added:
-			edge_repeat = 1
-			print("repeat: ", n1, n2, end = " ")
-		print("before:", self.acc, self.apl, n1, n2)
-		acc1 = self.acc
-		apl1= self.apl
+		edge_repeat = 1 if [n1, n2] in self.edges_added else 0
 		self.edges_added.append([n1, n2])
 		self.edges_added.append([n2, n1])
 		mat[n1][n2] = 1
 		mat[n2][n1] = 1
-		G = self.nxg
-		for edge in self.edges_added:
-			G.add_edge(edge[0], edge[1], color = 'red')
-		self.apl = round(nx.average_shortest_path_length(G), 3)
-		self.acc = round(nx.average_clustering(G), 3)
-		# self.latency, self.throughput, self.energy_consumed = calculateVariables(G)
+		self.nxg.add_edge(n1, n2, color='red')
+		self.apl = round(nx.average_shortest_path_length(self.nxg), 3)
+		self.acc = round(nx.average_clustering(self.nxg), 3)
 		self.obs_space = mat
+		self.action_space.pop(action)
+		self.action_space_n = len(self.action_space)
 		reward = self.get_reward(edge_repeat)
-		print("after:", self.acc, self.apl)
+		done = self.get_done()
 		mat_flatten = [num for sublist in mat for num in sublist]
-		return mat_flatten, reward
+		return mat_flatten, reward, done, {}
 
 	def save_graph(self, path, i):
 		G = self.nxg
