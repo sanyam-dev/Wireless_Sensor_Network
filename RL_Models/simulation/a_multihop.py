@@ -1,4 +1,4 @@
-from network import *
+from RL_Models.core.network import *
 from networkx import NetworkXError
 
 net = network(500, 500, 400, 0, 0)

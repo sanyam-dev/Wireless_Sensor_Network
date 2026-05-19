@@ -1,4 +1,4 @@
-from node import node
+from RL_Models.core.node import node
 import random
 from math import sqrt
 import matplotlib.pyplot as plt
@@ -26,7 +26,7 @@ class network:
 
 		# self.node_map = {int: node.}
 		self.node_map = {}
-		sink = node(base_x, base_y,0,0,0)
+		sink = node(base_x, base_y, 0)
 		sink.node_energy_setup(5*1e9, -5*1e9)
 
 		self.sink:node = sink
@@ -51,7 +51,7 @@ class network:
 			x_r = x*l
 			y_l = (y-1)*w
 			y_r = (y)*w
-			Node = node(random.randint(x_l,x_r), random.randint(y_l,y_r), i,0,0)
+			Node = node(random.randint(x_l,x_r), random.randint(y_l,y_r), i)
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
 			self.node_map[i] = Node
@@ -76,7 +76,7 @@ class network:
 
 		self.node_map[0] = self.sink
 		for i in range(1, self.number_of_nodes+1):
-			Node = node(x[i-1], y[i-1], i,0,0)
+			Node = node(x[i-1], y[i-1], i)
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
 			self.node_map[i] = Node
@@ -418,6 +418,12 @@ class network:
 			print("failed!")
 
 	def load_network_topology(self, path):
+		"""
+			path: path to .npy file
+		"""
+		self.node_list = []
+		self.node_map = {}
+
 		network_data = np.load(path, allow_pickle=True).item()
 		x = network_data['x']
 		y = network_data['y']
@@ -426,7 +432,7 @@ class network:
 		self.number_of_nodes = params['number_of_nodes']
 		self.area_length = params['area_x']
 		self.area_width = params['area_y']
-		sink = node(params['base_x'], params['base_y'], 0, 0, 0)
+		sink = node(params['base_x'], params['base_y'], 0)
 		sink.node_energy_setup(5*1e9, -1*1e9)
 		self.sink = sink
 		node_initial_energy = params['node_initial_energy']
@@ -435,7 +441,7 @@ class network:
 		print(params)
 		self.node_map[0] = self.sink
 		for i in range(1, self.number_of_nodes + 1):
-			Node = node(x[i], y[i], i, 0, 0)
+			Node = node(x[i], y[i], i)
 			# Node.node_energy_setup(params["node_initial_energy"], params["node_critical_energy"])
 			Node.node_energy_setup(node_initial_energy, node_critical_energy)
 			self.node_list.append(Node)
@@ -445,6 +451,9 @@ class network:
 		      params['speed_of_transmission'], params['radio_distance']
 		    )
 		return x, y, graph_data
+
+
+	# def load_network_topology(self, path):
 
 
 	def calculate_latency(self):

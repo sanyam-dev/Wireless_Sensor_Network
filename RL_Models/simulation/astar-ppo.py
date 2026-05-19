@@ -1,7 +1,7 @@
 import networkx as nx
 import numpy as np
-from node import *
-from network import *
+from RL_Models.core.node import *
+from RL_Models.core.network import *
 
 #weight function
 def weight(u, v, G):

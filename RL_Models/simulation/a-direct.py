@@ -1,4 +1,4 @@
-from network import network
+from RL_Models.core.network import network
 import numpy as np
 
 net = network(500, 500, 400, 0, 0)

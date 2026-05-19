@@ -1,4 +1,4 @@
-from network import network
+from RL_Models.core.network import network
 import random
 import numpy as np
 

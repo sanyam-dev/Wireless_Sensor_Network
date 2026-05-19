@@ -1,4 +1,4 @@
-from network import network as nw
+from RL_Models.core.network import network as nw
 import networkx as nx
 import matplotlib.pyplot as plt
 import os
@@ -10,7 +10,8 @@ class env:
 		self.net = nw(500, 500, 400, 0, 0)
 		# self.net.initialise_nodes_fixed(1, 0.4)
 		# self.net.set_parameters(2000,200,2000,2000,50)
-		self.net.load_network_topology("../config/network1network_data.npy")
+		_config_path = os.path.join(os.path.dirname(__file__), "..", "config", "network1network_data.npy")
+		self.net.load_network_topology(_config_path)
 		self.initial_net = self.net
 		self.initial_graph = self.net.get_graph()
 		self.action_space = self.set_action_space()

@@ -1,4 +1,4 @@
-from network import *
+from RL_Models.core.network import *
 import math
 from numpy.random import normal
 

@@ -1,5 +1,5 @@
-from network import *
-from node import *
+from RL_Models.core.network import *
+from RL_Models.core.node import *
 import network as nx
 import math
 

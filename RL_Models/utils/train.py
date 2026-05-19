@@ -1,6 +1,6 @@
 import numpy as np
-from RL import Agent
-from env import env
+from RL_Models.models.RL import Agent
+from RL_Models.core.env import env
 import random
 import os
 
