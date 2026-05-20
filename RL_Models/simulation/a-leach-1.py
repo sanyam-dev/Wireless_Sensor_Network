@@ -29,6 +29,7 @@ lm = net.latency_matrix
 energy_per_round = []
 latency_per_round = []
 throughput_per_round = []
+live_nodes = []
 er = sink.energy_for_reception(k)
 
 failed_itr_per_node = {}
@@ -146,6 +147,7 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 	else:
 		fake = "NO"
 	# print(rnds, net.number_of_nodes - len(dead_node), e_residual, l, round(s_trans/message_gen, 3), fake )
+	live_nodes.append(net.number_of_nodes - len(dead_node))
 	rnds += 1
 	message_gen = 0
 	s_trans = 0
@@ -155,5 +157,5 @@ while len(dead_node) < 0.9*net.number_of_nodes:
 
 # save_path = "results/performance/leach/P-" + str(P) + "/"
 save_path = "results/nsw-ppo/result/leach/" + str(P) + "/"
-net.save_network_performance(save_path, "fl", rnds, energy_per_round, throughput_per_round, latency_per_round)
+net.save_network_performance(save_path, "fl", rnds, energy_per_round, throughput_per_round, latency_per_round, live_nodes)
 print("lifetime", rnds, nodes_not_participating)

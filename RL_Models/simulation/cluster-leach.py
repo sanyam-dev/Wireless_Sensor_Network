@@ -67,6 +67,7 @@ prev_round_energy_consumed = 0
 energy_per_round = []
 latency_per_round = []
 throughput_per_round = []
+live_nodes = []
 er = sink.energy_for_reception(k)
 
 failed_itr_per_node = {}
@@ -123,6 +124,7 @@ while len(dead_node) < 0.9*n:
 			except ValueError:
 				continue
 
+	live_nodes.append(n - len(dead_node))
 	rnds += 1
 	# if(rnds%100==0):
 	print(rnds, len(dead_node), e, l, round(s_trans/message_gen, 3),fails)
@@ -130,5 +132,5 @@ while len(dead_node) < 0.9*n:
 	if(e == 0 and l == 0):
 		break
 print(rnds)
-net.save_network_performance("./results/performance/leach","cluster-leach.npy", rnds, energy_per_round, throughput_per_round, latency_per_round)
+net.save_network_performance("./results/performance/leach","cluster-leach.npy", rnds, energy_per_round, throughput_per_round, latency_per_round, live_nodes)
 net.show_cluster(cluster_labels, K_clusters, dead_node)

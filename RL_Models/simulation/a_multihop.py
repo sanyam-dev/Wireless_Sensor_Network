@@ -29,6 +29,7 @@ dm = net.calculate_dist()
 energy_per_round = [e]
 latency_per_round = []
 throughput_per_round = []
+live_nodes = []
 total_latency = 0
 
 while len(dead_node) < 0.9*n:
@@ -75,6 +76,7 @@ while len(dead_node) < 0.9*n:
 	energy_per_round.append(e)
 	throughput_per_round.append([message_gen, s_trans, s_trans/message_gen, failed_msg])
 	total_latency+= l
+	live_nodes.append(n - len(dead_node))
 	e = 0
 	l = 0
 	s_trans = 0
@@ -93,4 +95,4 @@ print(rnds)
 
 print("Average latency : ",avg_latency)
 print("Throughput : ",s_trans/message_gen)
-net.save_network_performance(parent_dir + "/multi-hop","fl",rnds,energy_per_round,throughput_per_round,latency_per_round)
+net.save_network_performance(parent_dir + "/multi-hop","fl",rnds,energy_per_round,throughput_per_round,latency_per_round,live_nodes)

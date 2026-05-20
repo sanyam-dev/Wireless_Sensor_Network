@@ -25,6 +25,7 @@ lm = net.latency_matrix
 energy_per_round = []
 latency_per_round = []
 throughput_per_round = []
+live_nodes = []
 total_latency=0
 rnd_latency=0
 er = sink.energy_for_reception(k)
@@ -50,6 +51,7 @@ while len(dead_node) < 0.9 * n:
 	throughput_per_round.append([message_generated, s_trans, 0, round(s_trans/message_generated, 2)])
 	energy_per_round.append(e)
 	total_latency += rnd_latency
+	live_nodes.append(n - len(dead_node))
 	rnd += 1
 	e=0
 	s_trans =0
@@ -58,7 +60,7 @@ while len(dead_node) < 0.9 * n:
 
 	for Node in net.node_list:
 		if not Node.is_functional():
-			dead_node.append(Node)
+			dead_node.add(Node)
 
 
 
@@ -70,4 +72,4 @@ print("Throughput :", message_generated)
 
 print("Total Energy Consumed : ",e)
 
-net.save_network_performance(parent_dir + '/direct/', "direct-fl", rnd, energy_per_round, throughput_per_round, latency_per_round)
+net.save_network_performance(parent_dir + '/direct/', "direct-fl", rnd, energy_per_round, throughput_per_round, latency_per_round, live_nodes)
